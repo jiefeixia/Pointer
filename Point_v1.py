@@ -80,7 +80,6 @@ if __name__ == "__main__":
         if not Path(file).is_file():
             Data.update(file)
     data = Data(file for file in files_list)
-    data.clean()
 
     # instantiate Person
     person = Person(input("Please enter your career:"), input("Please enter your location:"))
