@@ -43,11 +43,11 @@ class Data:
     @staticmethod
     def update(self, file):
         if file == CONSULTING_FILE:
-            glassdoor.crawl("consultant", "entrylevel", file)
+            glassdoor.crawl(file, "consultant", "entrylevel")
         elif file == SDE_FILE:
-            glassdoor.crawl("software engineer", "entrylevel", file)
+            glassdoor.crawl(file, "software engineer", "entrylevel")
         elif file == DS_FILE:
-            glassdoor.crawl("data scientist", "entrylevel", file)
+            glassdoor.crawl(file, "data scientist", "entrylevel")
         elif file == COURSE_EVL_FILE:
             heinz_course_api.crawl(file)
         elif file == COURSE_INFO_FILE:

@@ -8,7 +8,7 @@ import pandas as pd
 MAX_PAGE = 10  # max crawling page
 
 
-def crawl(job, level, file):
+def crawl(file, job, level="entrylevel"):
     # job type
     start_url = "https://www.glassdoor.com/Job/jobs.htm?sc.keyword=" + job + "&jobType=" + level
 
