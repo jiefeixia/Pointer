@@ -6,7 +6,7 @@ import heinz_course_api
 import smartevals
 
 """
-function documentation
+this is the main function
 """
 
 CONSULTING_FILE = "data/consulting.csv"
