@@ -59,7 +59,48 @@ class Data:
 
     def clean(self):
         # TODO(summer)
-        pass
+        def cleanData(inFileName,outFileName):
+            ds = pd.read_csv(inFileName)
+            ds['company_review'] = ds['company_review'].replace('★','', regex=True)
+            ds['company_review'].fillna("", inplace=True)
+            ds['est_salary'].fillna("",inplace=True)
+            salaryRange = ds['est_salary'].str.split("-", n = 1, expand = True)
+
+        def minSalary(amount):
+            if amount.endswith("k"):
+                if amount.startswith("Employer Provided Salary:$"):
+                    return int(amount[len("Employer Provided Salary:$"):-1])*1000
+                else:
+                    return int(amount[1:-1])*1000
+            elif amount.startswith("Employer Provided Salary:$"):
+                return int(amount[amount.rfind("$")+1:])*8*40*52
+            elif amount[1:].isnumeric():
+                return int(amount[1:])*8*40*52
+            else:
+                return amount
+
+        def maxSalary(amount):
+            if amount == None:
+                return ""
+            elif amount.endswith("k(Glassdoor est.)") or amount.endswith("k(Employer est.)") :
+                pos = amount.find("k")
+                return int(amount[1:pos])*1000
+            elif amount.endswith("Per Hour(Glassdoor est.)"):
+                pos = amount.find("Per")
+                return int(amount[1:pos])*8*40*52
+            elif amount.endswith("k") and amount.startswith("$"):
+                return int(amount[1:-1])*1000
+            elif amount.endswith("Per Hour"):
+                return int(amount[1:amount.find("Per Hour")])*8*40*52
+            else:
+                return amount
+       
+        ds['salary_low'] = salaryRange[0].map(minSalary)
+        ds['salary_high'] = salaryRange[1].map(maxSalary)
+        ds.loc[:,['name', 'company', 'company_review', 'salary_low', 'salary_high', 'location','description']].to_csv(outFileName)
+    cleanData("data/consulting.csv","consultant_cleaned.csv")
+    cleanData("data/sde.csv","sde_cleaned.csv")
+    cleanData("data/ds.csv","ds_cleaned.csv")
 
     def hist(self, job):
         # TODO(zhangyu)
