@@ -5,6 +5,10 @@ import glassdoor
 import heinz_course_api
 import smartevals
 
+import geo_ds
+import geo_consultant
+import geo_sde
+
 """
 this is the main function
 """
@@ -54,8 +58,11 @@ class Data:
             print("We need your andrew ID and password to log in smartevls.com to get course evaluation data")
             smartevals.crawl(file, input("Please enter your andrew ID:"), input("Please enter your password"))
         elif file == COMPANY_LOC_FILE:
-            # TODO(xinyi)
-            pass
+            #save to files
+            geo_consultant()
+            geo_ds()
+            geo_sde()
+
 
     def clean(self):
         # TODO(summer)
