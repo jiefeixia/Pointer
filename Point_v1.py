@@ -109,9 +109,131 @@ class Data:
     cleanData("data/sde.csv","sde_cleaned.csv")
     cleanData("data/ds.csv","ds_cleaned.csv")
 
-    def hist(self, job):
+    def hist_salary(self, career):
         # TODO(zhangyu)
-        pass
+        if career == 'Data Scientist':
+            salary_ds = ds.loc[:,['salary_low','salary_high']]
+            ds['avg_salary'] = salary_ds.mean(axis=1)
+            boot_ds = ds['avg_salary'].sample(frac=10, replace=True)
+            filter_salary_ds = ds['avg_salary'][ds['avg_salary']<200000]
+            fig, ax = plt.subplots()
+            filter_salary_ds.plot.kde(ax=ax, legend=False, title='Salary for Data Scientist')
+            filter_salary_ds.plot.hist(density=True, ax=ax)
+            ax.set_ylabel('Probability')
+            ax.grid(axis='y')
+            ax.set_facecolor('#d8dcd6')
+        if career == 'Software Engineer Developer':
+            salary_sde = ds.loc[:,['salary_low','salary_high']]
+            sde['avg_salary'] = salary_ds.mean(axis=1)
+            boot_sde = ds['avg_salary'].sample(frac=10, replace=True)
+            fig, ax = plt.subplots()
+            boot_sde.plot.kde(ax=ax, legend=False, title='Salary for Software Engineer')
+            boot_sde.plot.hist(density=True, ax=ax)
+            ax.set_ylabel('Probability')
+            ax.grid(axis='y')
+            ax.set_facecolor('#d8dcd6')
+        if career == 'Consultant':
+            salary_con = ds.loc[:,['salary_low','salary_high']]
+            con['avg_salary'] = salary_ds.mean(axis=1)
+            boot_con = ds['avg_salary'].sample(frac=10, replace=True)
+            filter_salary_con = con['avg_salary'][con['avg_salary']<150000]            
+            fig, ax = plt.subplots()
+            filter_salary_con.plot.kde(ax=ax, legend=False, title='Salary for Consultant')
+            filter_salary_con.plot.hist(density=True, ax=ax)
+            ax.set_ylabel('Probability')
+            ax.grid(axis='y')
+            ax.set_facecolor('#d8dcd6')
+    
+    def hist_review(self, career):
+        #yuxin
+        if career == 'Data Scientist':
+            fig, ax = plt.subplots()
+            ds['company_review'].plot.kde(ax=ax, legend=False, title='Company Review Score for Data Scientist')
+            ds['company_review'].plot.hist(density=True, ax=ax, color = 'skyblue')
+            ax.set_ylabel('Probability')
+            ax.grid(axis='y')
+            ax.set_facecolor('#d8dcd6')
+        if career == 'Software Engineer Developer':
+            fig, ax = plt.subplots()
+            sde['company_review'].plot.kde(ax=ax, legend=False, title='Company Review Score for Software Engineer')
+            sde['company_review'].plot.hist(density=True, ax=ax,color = 'skyblue')
+            ax.set_ylabel('Probability')
+            ax.grid(axis='y')
+            ax.set_facecolor('#d8dcd6')
+        if career == 'Consultant':
+            fig, ax = plt.subplots()
+            con['company_review'].plot.kde(ax=ax, legend=False, title='Company Review Score for Consultants')
+            con['company_review'].plot.hist(density=True, ax=ax,color = 'skyblue')
+            ax.set_ylabel('Probability')
+            ax.grid(axis='y')
+            ax.set_facecolor('#d8dcd6')
+     
+    def job_wc(self, career):
+        #yuxin
+        if career == 'Data Scientist':
+            your_list = []
+            for i in ds['description']:
+                your_list.append(i + ' ')
+            s = ''.join(your_list)
+            stopwords= set(STOPWORDS)
+            #append new words to the stopwords list
+            new_words =['experience','entry', 'level','position','work','Job','will','required','requirement','team','project','provide','knowledge']
+            new_stopwords=stopwords.union(new_words)
+            wc = WordCloud(background_color="white", 
+               width=800, height=600, margin=2,
+               stopwords=new_stopwords
+               )
+            wc.generate(s)
+            plt.figure(figsize=(10,10))
+            plt.imshow(wc, interpolation="bilinear")
+            plt.axis("off")
+        
+        if career == 'Software Engineer Developer':
+            your_list = []
+            #set the stopwords list
+            stopwords= set(STOPWORDS)
+            #append new words to the stopwords list
+            new_words =['experience','entry', 'level','position','work','Job','will','required','requirement','team','project','provide','knowledge','Jobs']
+            new_stopwords=stopwords.union(new_words)
+            
+            for i in sde['description']:
+                your_list.append(i + ' ')
+            s = ''.join(your_list)
+            wc = WordCloud(background_color="white", 
+                           width=800, height=600, margin=2,
+                           stopwords=new_stopwords
+                           )
+            wc.generate(s)
+            plt.figure(figsize=(10,10))
+            plt.imshow(wc, interpolation="bilinear")
+            plt.axis("off")
+            #Show the wordcloud
+            plt.show()
+   
+        if career == 'Consultant':
+        
+            your_list = []
+            #set the stopwords list
+            stopwords= set(STOPWORDS)
+
+            #append new words to the stopwords list
+            new_words =['experience','entry', 'level','position','work','Job','will','required','requirement','team','project','provide','knowledge','Jobs']
+            new_stopwords=stopwords.union(new_words)
+
+            for i in con['description']:
+                your_list.append(i + ' ')
+            s = ''.join(your_list)
+            wc = WordCloud(background_color="white", 
+                           width=800, height=600, margin=2,
+                           stopwords=new_stopwords
+                           )
+            wc.generate(s)
+            plt.figure(figsize=(10,10))
+            plt.imshow(wc, interpolation="bilinear")
+            plt.axis("off")
+
+            #Show the wordcloud
+            plt.show()
 
     def hotmap(self, job):
         # TODO(xinyi)
