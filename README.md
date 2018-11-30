@@ -8,7 +8,10 @@ This is the Course project for Data Focus Python. You can use this program to fi
 
 # Installation
 required environment: python 3.5+
+
 download all .py file
+
 required packages are listed in requirement.txt, you can install by `pip install -r requirement.txt`
+
 run Point_v1.py
 
