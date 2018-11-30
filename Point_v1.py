@@ -257,7 +257,9 @@ if __name__ == "__main__":
     # recommend
     person.recommend_job()
     person.recommend_course()
-    data.hist(person.career)
+    data.hist_salary(person.career)
+    data.hist_review(person.career)
+    data.job_wc(person.career)        
     data.hotmap(person.career)
 
 
