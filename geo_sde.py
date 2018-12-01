@@ -45,4 +45,6 @@ def geo_sde():
         dict['company'] = sde.iloc[i]['company']
         data3.loc[i] = dict
     data3.to_csv("geo_sde.csv", encoding='utf-8', index=False)
+    
+
 

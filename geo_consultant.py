@@ -49,16 +49,14 @@ def geo_consultant():
         data.loc[i] = dic
     data.to_csv("geo_consultants.csv", encoding='utf-8', index=False)
 
-def consultant_clean():
-    data = pd.read_csv("geo_consultants.csv",index = False)
+def geo_clean(file):
+    data = pd.read_csv(file,index = False)
     df = data.dropna().groupby(['state'],as_index=False)['state'].agg({'cnt':'count'})
     df = df.iloc[1:]
     df['cnt'] = pd.to_numeric(df['cnt']).astype(float)
     return df
 
-def consultant_map():
-    df = geo_clean()
-
+def job_map(df):
     dat = dict(type='choropleth',
             colorscale = 'Viridis',
             locations = df['state'],
