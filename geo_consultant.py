@@ -49,7 +49,7 @@ def geo_consultant():
         data.loc[i] = dic
     data.to_csv("geo_consultants.csv", encoding='utf-8', index=False)
 
-def clean(file):
+def geo_clean(file):
     data = pd.read_csv(file,index = False)
     df = data.dropna().groupby(['state'],as_index=False)['state'].agg({'cnt':'count'})
     df = df.iloc[1:]
