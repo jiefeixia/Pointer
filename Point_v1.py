@@ -47,7 +47,7 @@ class Data:
         self.ds_df = pd.read_csv(ds_file)
         self.course_evl_df = pd.read_csv(course_evl_file)
         self.course_info_df = pd.read_csv(course_info_file)
-        # TODO(xinyi) combine two course df
+       
         self.sde_loc_df = geo_clean(SDE_LOC_FILE)
         self.ds_loc_df= geo_clean(DS_LOC_FILE)
         self.consultant_loc_df = geo_clean(CONSULTANT_LOC_FILE)
@@ -78,6 +78,40 @@ class Data:
 
 
     def clean(self):
+        # course datas clean and merge, new files stored automatically
+        # read data from crawled files, put filename into descfile and evlfile
+        def CourseClean_Merge(descfile, evlfile):
+            fd = pd.read_csv(descfile)
+            fd_cleaned = fd
+            for i in range(len(fd)):
+                fd_cleaned['course_id'][i] =  (fd['course_id'][i])[0:2] + (fd['course_id'][i])[3:]
+                fd_cleaned['units'][i] = fd['units'][i][7:]
+                fd_cleaned['description'][i] = fd['description'][i][12:]
+            # store cleaned course description file
+            fd_cleaned.to_csv('coursedesc_cleaned.csv',index=False)
+            fe = pd.read_csv(evlfile)
+            fe_cleaned = fe.copy()
+            del fe_cleaned['Hrs Per Week 8']
+            del fe_cleaned['Interest in student learning']
+            del fe_cleaned['Clearly explain course requirements']
+            del fe_cleaned['Clear learning objectives & goals']
+            del fe_cleaned['Instructor provides feedback to students to improve']
+            del fe_cleaned['Demonstrate importance of subject matter']
+            del fe_cleaned['Explains subject matter of course']
+            del fe_cleaned['Show respect for all students']
+            del fe_cleaned['Possible Respondents']
+            del fe_cleaned['Num Respondents']
+            del fe_cleaned['Response Rate %']
+            del fe_cleaned['Hrs Per Week 5']
+            fe_cleaned = fe_cleaned[fe_cleaned['Level'] == 'Graduate']
+            # store cleaned course evaluation file
+            fe_cleaned.to_csv('courseevl_cleaned.csv',index=False)
+            ftemp1 = fe.groupby('Course ID')['Overall course rate'].mean()
+            ftemp2 = pd.DataFrame(ftemp1).reset_index()
+            f_merged = pd.merge(fd_cleaned,ftemp2,left_on="course_id",right_on= "Course ID")
+            f_merged.to_csv('course_merged.csv')
+
+
         # TODO(summer)
         def cleanData(inFileName,outFileName):
             ds = pd.read_csv(inFileName)
