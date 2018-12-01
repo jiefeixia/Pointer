@@ -3,6 +3,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud, STOPWORDS
 import numpy as np
+import plotly.graph_objs as go
+from plotly.offline import init_notebook_mode,iplot
 
 import glassdoor
 import heinz_course_api
@@ -79,7 +81,7 @@ class Data:
         elif filename == COMPANY_LOC_FILE:
             geo.crawl(COMPANY_LOC_FILE)
         elif filename == RENT_FILE:
-            rent.download()
+            rent.download(file)
 
     def hist_salary(self, career):
         if career == "data scientist":
@@ -149,7 +151,23 @@ class Data:
             job_map(sde_loc_df)
         elif career == 'Consultant':
             job_map(consultant_loc_df)
-        rent_map(rent_df)
+
+    def rent_map(self, job_df):
+        data = dict(type='choropleth',
+                    colorscale='Viridis',
+                    reversescale=True,
+                    locations=df2['state'],
+                    z=job_df['rent'],
+                    locationmode='USA-states',
+                    text=job_df['Region Name'],
+                    marker=dict(line=dict(color='rgb(255,255,255)', width=1)),
+                    colorbar={'title': "Rent(yearly)"})
+        layout = dict(title='Rent Distribution around US',
+                      geo=dict(scope='usa',
+                               showlakes=True))
+
+        choromap = go.Figure(data=[data], layout=layout)
+        iplot(choromap, validate=False)
 
 
 if __name__ == "__main__":
