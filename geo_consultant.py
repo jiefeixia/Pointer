@@ -56,7 +56,7 @@ def geo_clean(file):
     df['cnt'] = pd.to_numeric(df['cnt']).astype(float)
     return df
 
-def map(df):
+def job_map(df):
     dat = dict(type='choropleth',
             colorscale = 'Viridis',
             locations = df['state'],
