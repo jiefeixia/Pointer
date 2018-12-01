@@ -38,7 +38,7 @@ class Person:
 
 class Data:
     def __init__(self, consulting_file, sde_file, ds_file, course_evl_file, course_info_file, company_loc_file,
-                 RENT_FILE):
+                 rent_file):
         self.consulting_df = pd.read_csv(consulting_file)
         self.sde_df = pd.read_csv(sde_file)
         self.ds_df = pd.read_csv(ds_file)
@@ -61,7 +61,7 @@ class Data:
         self.course_df = course_evl_combine_df.merge(course_info_df, how="outer", left_on="Course ID",
                                                      right_on="course_id")
         self.company_loc_df = pd.read_csv(company_loc_file)
-        self.rent_df = pd.read_csv(RENT_FILE)
+        self.rent_df = pd.read_csv(rent_file)
 
     @staticmethod
     def update(filename):
