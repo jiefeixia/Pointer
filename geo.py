@@ -47,3 +47,10 @@ def crawl(file):
         column['company'] = job_df.iloc[i]['company']
         company_loc_df.loc[i] = column
     company_loc_df.to_csv(file, encoding='utf-8', index=False)
+
+def geo_clean(file):
+    data = pd.read_csv(file,index = False)
+    df = data.dropna().groupby(['state'],as_index=False)['state'].agg({'cnt':'count'})
+    df = df.iloc[1:]
+    df['cnt'] = pd.to_numeric(df['cnt']).astype(float)
+    return df

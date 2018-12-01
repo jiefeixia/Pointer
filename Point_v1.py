@@ -88,7 +88,7 @@ class Data:
             df = self.ds_df
         elif career == 'software engineer developer':
             df = self.sde_df
-        elif career == 'consultant':
+        else:  # career == 'consultant'
             df = self.consulting_df
 
         salary_ds = df.loc[:, ['salary_low', 'salary_high']]
@@ -108,7 +108,7 @@ class Data:
             df = self.ds_df
         elif career == 'software engineer developer':
             df = self.sde_df
-        elif career == 'consultant':
+        else:  # career == 'consultant':
             df = self.consulting_df
 
         fig, ax = plt.subplots()
@@ -123,7 +123,7 @@ class Data:
             df = self.ds_df
         elif career == 'software engineer developer':
             df = self.sde_df
-        elif career == 'consultant':
+        else:  # career == 'consultant':
             df = self.consulting_df
 
         your_list = []
@@ -144,29 +144,51 @@ class Data:
         plt.imshow(wc, interpolation="bilinear")
         plt.axis("off")
 
-    def hotmap(self, job):
-        if career == 'Data Scientist':
-            job_map(ds_loc_df)
-        elif career == 'Software Engineer Developer':
-            job_map(sde_loc_df)
-        elif career == 'Consultant':
-            job_map(consultant_loc_df)
+    def heat_map(self, career):
+        if career == 'data scientist':
+            df = self.ds_df
+        elif career == 'software engineer developer':
+            df = self.sde_df
+        else:  # career == 'consultant':
+            df = self.consulting_df
 
-    def rent_map(self, job_df):
-        data = dict(type='choropleth',
+        dat = dict(type='choropleth',
+                   colorscale='Viridis',
+                   locations=df['state'],
+                   z=df['cnt'],
+                   locationmode='USA-states',
+                   marker=dict(line=dict(color='rgb(255,255,255)', width=2)),
+                   colorbar={'title': "Count of jobs"}
+                   )
+        layout = dict(title='Consultant Job Distribution around US',
+                      geo=dict(scope='usa',
+                               showlakes=True))
+
+        choromap = go.Figure(data=[dat], layout=layout)
+        iplot(choromap, validate=False)
+
+    def rent_map(self, career):
+        if career == 'data scientist':
+            df = self.ds_df
+        elif career == 'software engineer developer':
+            df = self.sde_df
+        else:  # career == 'consultant':
+            df = self.consulting_df
+
+        map_data = dict(type='choropleth',
                     colorscale='Viridis',
                     reversescale=True,
-                    locations=df2['state'],
-                    z=job_df['rent'],
+                    locations=df['state'],
+                    z=df['rent'],
                     locationmode='USA-states',
-                    text=job_df['Region Name'],
+                    text=df['Region Name'],
                     marker=dict(line=dict(color='rgb(255,255,255)', width=1)),
                     colorbar={'title': "Rent(yearly)"})
         layout = dict(title='Rent Distribution around US',
                       geo=dict(scope='usa',
                                showlakes=True))
 
-        choromap = go.Figure(data=[data], layout=layout)
+        choromap = go.Figure(data=[map_data], layout=layout)
         iplot(choromap, validate=False)
 
 
@@ -179,7 +201,8 @@ if __name__ == "__main__":
     for file in files_list:
         if not Path(file).is_file():
             Data.update(file)
-    data = Data(file for file in files_list)
+
+    data = Data(*files_list)
 
     # instantiate Person
     person = Person(input("Please enter your career:").lower, input("Please enter your location:").lower)
@@ -190,4 +213,4 @@ if __name__ == "__main__":
     data.hist_salary(person.career)
     data.hist_review(person.career)
     data.job_wc(person.career)
-    data.hotmap(person.career)
+    data.heat_map(person.career)
