@@ -75,10 +75,9 @@ def download(file):
 
     # clean data
     df = pd.read_excel("data//united-states.xls", skiprows=2)
-    df = df.iloc[1:, [0, 3]]
+    df = df.iloc[1:, :]
 
-    df['rent'] = df["Current"].replace(',', '')
-    df['rent'] = df["Current"].replace('--', 0)
+    df['rent'] = df["Current"].replace(',', '').replace('--', 0)
     df['state'] = df["Region Name"].map(us_state_abbrev)
 
     df.to_csv(file)
