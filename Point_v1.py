@@ -16,7 +16,7 @@ import rent
 this is the main function
 """
 
-CONSULTING_FILE = "data/consulting.csv"
+CONSULTING_FILE = "data/consultant.csv"
 SDE_FILE = "data/sde.csv"
 DS_FILE = "data/ds.csv"
 COURSE_EVL_FILE = "data/course_evl.csv"
@@ -67,6 +67,7 @@ class Data:
 
     @staticmethod
     def update(filename):
+        print("Updating " + filename)
         if filename == CONSULTING_FILE:
             glassdoor.crawl(file, "consultant", "entrylevel")
         elif filename == SDE_FILE:
