@@ -25,8 +25,7 @@ def crawl(file, andrew_id, password):
     assert "Your Surveys" not in driver.title
     driver.find_elements_by_css_selector('#_ctl0_cphContent_grd1_DXPagerTop_DDB')[0].click()
 
-    driver.find_elements_by_css_selector('#_ctl0_cphContent_grd1_DXPagerTop_PSP_DXI4_T > span')[
-        0].click()  # 200 items in one page
+    driver.find_elements_by_css_selector('#_ctl0_cphContent_grd1_DXPagerTop_PSP_DXI4_T > span')[0].click()  # 200/page
 
     columns = [name.text for name in
                driver.find_elements_by_css_selector(
@@ -60,5 +59,7 @@ def crawl(file, andrew_id, password):
         table = []
 
     driver.close()
+
+    df = df.remove
 
     df.to_csv(file, index=False)
