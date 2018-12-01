@@ -5,9 +5,9 @@ import pandas as pd
 
 
 def download(file):
-    mypath = os.path.join(os.getcwd(), "data")
+    download_path = os.path.join(os.getcwd(), "data")
     options = webdriver.ChromeOptions()
-    prefs = {'profile.default_content_settings.popups': 0, 'download.default_directory': mypath}
+    prefs = {'profile.default_content_settings.popups': 0, 'download.default_directory': download_path}
     options.add_experimental_option('prefs', prefs)
     try:
         driver = webdriver.Chrome(executable_path='chromedriver.exe', options=options)
@@ -17,19 +17,17 @@ def download(file):
         driver.implicitly_wait(10)
         driver.find_element_by_xpath('//a[text()="Download Full Data"]').click()
         sleep(5)
-    except:
+    except Exception:
         print("Limited updates. Please try again later.")
 
     # clean data
-    file = pd.read_csv(name, skiprows=2)
-    file = file.iloc[:, [0, 3]]
-    file.to_csv("US_renting_cleaned.csv", index=False)
-    df2 = pd.read_csv('US_renting_cleaned.csv')
-    df2 = df2.iloc[1:]
-    list = []
-    for i in range(0, len(df2)):
-        list.append(float(df2.iloc[i]['Current'].replace(',', '')[1:].replace('--', '0')))
-    df2['rent'] = list
+    df = pd.read_excel("data//united-states.xls", skiprows=2)
+    df = df.iloc[1:, [0, 3]]
+
+    rent = []
+    for i in range(0, len(df)):
+        rent.append(float(df.iloc[i]['Current'].replace(',', '')[1:].replace('--', '0')))
+    df['rent'] = rent
 
     us_state_abbrev = {
         'Alabama': 'AL',
@@ -85,7 +83,7 @@ def download(file):
     }
 
     list1 = []
-    for i in range(0, len(df2)):
-        list1.append(us_state_abbrev.get(df2.iloc[i]['Region Name']))
-    df2['state'] = list1
-    df2.to_csv(file)
+    for i in range(0, len(df)):
+        list1.append(us_state_abbrev.get(df.iloc[i]['Region Name']))
+    df['state'] = list1
+    df.to_csv(file)

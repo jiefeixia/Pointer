@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from wordcloud import WordCloud, STOPWORDS
 import numpy as np
 import plotly.graph_objs as go
-from plotly.offline import init_notebook_mode,iplot
+from plotly.offline import iplot
 
 import glassdoor
 import heinz_course_api
