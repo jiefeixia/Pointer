@@ -143,8 +143,13 @@ class Data:
         plt.axis("off")
 
     def hotmap(self, job):
-        # TODO(xinyi)
-        pass
+        if career == 'Data Scientist':
+            job_map(ds_loc_df)
+        elif career == 'Software Engineer Developer':
+            job_map(sde_loc_df)
+        elif career == 'Consultant':
+            job_map(consultant_loc_df)
+        rent_map(rent_df)
 
 
 if __name__ == "__main__":
