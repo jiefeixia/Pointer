@@ -10,6 +10,7 @@ import geo_consultant
 import geo_sde
 
 import us_rent_clean
+import download
 
 """
 this is the main function
@@ -71,7 +72,8 @@ class Data:
             geo_ds()
         elif file == CONSULTANT_LOC_FILE:
             geo_consultant()
-   # rent to be add
+        elif file == US_RENT_FILE:
+            us_rent()
 
 
 
