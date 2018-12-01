@@ -18,7 +18,9 @@ SDE_FILE = "data/sde.csv"
 DS_FILE = "data/ds.csv"
 COURSE_EVL_FILE = "data/course_evl.csv"
 COURSE_INFO_FILE = "data/course_info.csv"
-COMPANY_LOC_FILE = "data/company_loc.csv"
+SDE_LOC_FILE = "data/geo_sde.csv"
+DS_LOC_FILE = "data/geo_ds.csv"
+CONSULTANT_LOC_FILE = "data/geo_consultants.csv"
 
 
 class Person:
@@ -35,14 +37,16 @@ class Person:
 
 
 class Data:
-    def __init__(self, consulting_file, sde_file, ds_file, course_evl_file, course_info_file, company_loc_file):
+    def __init__(self, consulting_file, sde_file, ds_file, course_evl_file, course_info_file, SDE_LOC_FILE,DS_LOC_FILE,CONSULTANT_LOC_FILE):
         self.consulting_df = pd.read_csv(consulting_file)
         self.sde_df = pd.read_csv(sde_file)
         self.ds_df = pd.read_csv(ds_file)
         self.course_evl_df = pd.read_csv(course_evl_file)
         self.course_info_df = pd.read_csv(course_info_file)
         # TODO(xinyi) combine two course df
-        self.company_loc_df = pd.read_csv(company_loc_file)
+        self.sde_loc_df = geo_clean(SDE_LOC_FILE)
+        self.ds_loc_df= geo_clean(DS_LOC_FILE)
+        self.consultant_loc_df = geo_clean(CONSULTANT_LOC_FILE)
 
     @staticmethod
     def update(self, file):
@@ -57,11 +61,13 @@ class Data:
         elif file == COURSE_INFO_FILE:
             print("We need your andrew ID and password to log in smartevls.com to get course evaluation data")
             smartevals.crawl(file, input("Please enter your andrew ID:"), input("Please enter your password"))
-        elif file == COMPANY_LOC_FILE:
-            #save to files
-            geo_consultant()
-            geo_ds()
+        elif file == SDE_LOC_FILE:
             geo_sde()
+        elif file == DS_LOC_FILE:
+            geo_ds()
+        elif file == CONSULTANT_LOC_FILE:
+            geo_consultant()
+
 
 
     def clean(self):
@@ -235,9 +241,13 @@ class Data:
             #Show the wordcloud
             plt.show()
 
-    def hotmap(self, job):
-        # TODO(xinyi)
-        pass
+    def hotmap(self, career):
+        if career == 'Data Scientist':
+            job_map(ds_loc_df)
+        elif career == 'Software Engineer Developer':
+            job_map(sde_loc_df)
+        elif career == 'Consultant':
+            job_map(consultant_loc_df)
 
 
 if __name__ == "__main__":
