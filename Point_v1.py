@@ -167,21 +167,14 @@ class Data:
         choromap = go.Figure(data=[dat], layout=layout)
         iplot(choromap, validate=False)
 
-    def rent_map(self, career):
-        if career == 'data scientist':
-            df = self.ds_df
-        elif career == 'software engineer developer':
-            df = self.sde_df
-        else:  # career == 'consultant':
-            df = self.consulting_df
-
+    def rent_map(self):
         map_data = dict(type='choropleth',
                     colorscale='Viridis',
                     reversescale=True,
-                    locations=df['state'],
-                    z=df['rent'],
+                    locations=self.rent_df['state'],
+                    z=self.rent_df['rent'],
                     locationmode='USA-states',
-                    text=df['Region Name'],
+                    text=self.rent_df['Region Name'],
                     marker=dict(line=dict(color='rgb(255,255,255)', width=1)),
                     colorbar={'title': "Rent(yearly)"})
         layout = dict(title='Rent Distribution around US',
