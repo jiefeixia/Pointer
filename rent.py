@@ -82,8 +82,8 @@ def download(file):
         'Wyoming': 'WY',
     }
 
-    list1 = []
+    state = []
     for i in range(0, len(df)):
-        list1.append(us_state_abbrev.get(df.iloc[i]['Region Name']))
-    df['state'] = list1
+        state.append(us_state_abbrev.get(df.iloc[i]['Region Name']))
+    df['state'] = state
     df.to_csv(file)
