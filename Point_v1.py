@@ -53,7 +53,7 @@ class Person:
             course.append(coursedes[i] + courseout[i])  # combine description and outcome together
 
         # deal with stopwords
-        stop = open('corenlp_stopwords.txt', encoding='utf-8')
+        stop = open('data/corenlp_stopwords.txt', encoding='utf-8')
         st = stop.readlines()
         for i in range(len(st)):
             st[i] = st[i].strip('\n')  # delete '\n' in each word
@@ -112,8 +112,8 @@ class Person:
             if self.location in str(job['location'][i]):
                 desc.append(job['description'][i].replace(',', ' '))
 
-        coursedes = list(data.courses_df['description'])
-        courseout = list(data.courses_df['learning_outcome'])
+        coursedes = list(data.course_df['description'])
+        courseout = list(data.course_df['learning_outcome'])
 
         course = []
         for i in range(len(courseout)):
@@ -172,8 +172,8 @@ class Person:
         recommended = set()
         for i in np.argsort(count)[-4:]:
 
-            recommended.add(data.courses_df['course_id'][i] + ": " + data.courses_df['names'][i] + ',course rate:' +
-                            '%.2f' % data.courses_df['Overall course rate'][i])
+            recommended.add(data.course_df['course_id'][i] + ": " + data.course_df['names'][i] + ',course rate:' +
+                            '%.2f' % data.course_df['Overall course rate'][i])
         print("COURSES RECOMMENDED:")
         for i in recommended:
             print(i)
@@ -353,7 +353,8 @@ if __name__ == "__main__":
     database = Data(*files_list)
 
     # instantiate Person
-    person = Person(input("Please enter your career:").lower(), input("Please enter your location:").lower())
+    # person = Person(input("Please enter your career:").lower(), input("Please enter your location:").lower())
+    person = Person("consultant", "New York")
 
     # recommend
     # person.recommend_job()
