@@ -9,10 +9,61 @@ import os
 from functools import partial
 
 MAX_PAGE = 3  # max crawling page
+us_state_abbrev = {
+    'Alabama': 'AL',
+    'Alaska': 'AK',
+    'Arizona': 'AZ',
+    'Arkansas': 'AR',
+    'California': 'CA',
+    'Colorado': 'CO',
+    'Connecticut': 'CT',
+    'Delaware': 'DE',
+    'Florida': 'FL',
+    'Georgia': 'GA',
+    'Hawaii': 'HI',
+    'Idaho': 'ID',
+    'Illinois': 'IL',
+    'Indiana': 'IN',
+    'Iowa': 'IA',
+    'Kansas': 'KS',
+    'Kentucky': 'KY',
+    'Louisiana': 'LA',
+    'Maine': 'ME',
+    'Maryland': 'MD',
+    'Massachusetts': 'MA',
+    'Michigan': 'MI',
+    'Minnesota': 'MN',
+    'Mississippi': 'MS',
+    'Missouri': 'MO',
+    'Montana': 'MT',
+    'Nebraska': 'NE',
+    'Nevada': 'NV',
+    'New Hampshire': 'NH',
+    'New Jersey': 'NJ',
+    'New Mexico': 'NM',
+    'New York': 'NY',
+    'North Carolina': 'NC',
+    'North Dakota': 'ND',
+    'Ohio': 'OH',
+    'Oklahoma': 'OK',
+    'Oregon': 'OR',
+    'Pennsylvania': 'PA',
+    'Rhode Island': 'RI',
+    'South Carolina': 'SC',
+    'South Dakota': 'SD',
+    'Tennessee': 'TN',
+    'Texas': 'TX',
+    'Utah': 'UT',
+    'Vermont': 'VT',
+    'Virginia': 'VA',
+    'Washington': 'WA',
+    'West Virginia': 'WV',
+    'Wisconsin': 'WI',
+    'Wyoming': 'WY',
+}
 
 
 def crawl(file, job, level="entrylevel", max_page=MAX_PAGE):
-
     with Pool(os.cpu_count()) as p:
         partial_crawl_page = partial(crawl_page, job=job, level=level)
         page_list = p.map(partial_crawl_page, [page_num for page_num in range(1, max_page + 1)])
@@ -112,6 +163,12 @@ def crawl_page(page_num, job, level="entrylevel", chrome_headless=False):
     salary_range = page['est_salary'].astype(str).str.split("-", n=1, expand=True)
     page['salary_low'] = salary_range[0].map(min_salary)
     page['salary_high'] = salary_range[1].map(max_salary)
+
+    page["state"] = page["location"].apply(lambda loc: us_state_abbrev[state_full]
+    if state_full.lower() in loc.lower()
+       or us_state_abbrev[state_full] in loc.lower() else None
+                                           for state_full in us_state_abbrev.keys())
+
     page = page.drop("est_salary", axis=1)
 
     names.clear()
@@ -154,6 +211,15 @@ def max_salary(amount):
         return int(amount[1:amount.find("Per Hour")]) * 8 * 40 * 52
     else:
         return amount
+
+
+# find state on location info to draw heat map
+def find_state(loc):
+    for key in us_state_abbrev.keys():
+        if key in str(loc):
+            return us_state_abbrev[key]
+        elif us_state_abbrev[key] in str(loc):
+            return us_state_abbrev[key]
 
 
 # for test purpose
