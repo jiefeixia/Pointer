@@ -100,6 +100,82 @@ class Person:
 
     def recommend_course(self, jobs_df, courses_df):
         # TODO(liwei)
+        
+        career = 'data science'
+        loc = 'CA'
+        if self.career == 'data science':
+            job = pd.read_csv("ds.csv")
+        elif self.career == 'sde':
+            job = pd.read_csv("sde_csv")
+        elif self.career == 'consultant':
+            job = pd.read_csv("consultant.csv")
+        desc = []
+        for i in range(len(job)):
+            if loc in str(job['location'][i]):
+                desc.append(job['description'][i].replace(',',' '))
+                
+        coursedes = list(courses_df['description'])
+        courseout = list(courses_df['learning_outcome'])
+        course = []
+        for i in range(len(courseout)):
+            if (type(coursedes[i]) != str):
+                coursedes[i] = str(coursedes[i]) #make sure data type are string
+            if (type(courseout[i]) != str):
+                courseout[i] = str(courseout[i]) #make sure data type are string
+            course.append(coursedes[i] + courseout[i]) # combine description and outcome together
+        
+        # deal with stopwords
+        import codecs
+        stop= open('corenlp_stopwords.txt',encoding = 'utf-8')
+        st = stop.readlines()
+        for i in range(len(st)):
+            st[i]=st[i].strip('\n') # delete '\n' in each word
+        st.extend(['allow','outcomes','some','mini','another','student','in','or','either','final','exam','mid','by',
+                  'areas','also','today','course','Outcomes:','will','Work','Students','The','It','us','class','Learning',
+                  'course,',' ','try','on','results','how','what','he','she','courses','professor','their','one','two',
+                    'develop','problem','problems','perform','re','job','ed','edu','many','year','years','multi','become','use',
+                  'homework','come','came','three','skills','art','life','success','now','career','students','short','long','able',
+                  'professional','arts','master','across','field','target','using','cut'])
+        for i in range(len(course)):
+            out = ''
+            for word in course[i].split(' '):
+                if word not in st:
+                    out = out + word + ' '
+            course[i] = out
+
+        vectorizer = CountVectorizer()#
+        transformer = TfidfTransformer()#                                                                                                                                                                                                                                                                               词语的tf-idf权值  
+        tfidf = transformer.fit_transform(vectorizer.fit_transform(course))#calculate tf-idf
+        word = vectorizer.get_feature_names()# all words in the word bag
+        weight=tfidf.toarray()# get matrix of tfidf
+        key = []
+        for i in range(len(weight)):
+            doc = {}
+            t = np.argsort(-weight[i])
+            s = ''
+            for j in range(40):
+                #print(word[t[j]], ':', weight[i][t[j]])
+                if (word[t[j]] not in st):
+                    s = s + ' ' + word[t[j]]
+            key.append(s)
+        count = []
+        for i in range(len(key)):
+            c = 0
+            for word in key[i].split(' '):
+                if word != '':
+                    for j in desc:
+                        a = j.count(word)
+                        #print('a;:::::::::::' + str(a)+ word )
+                        c += a
+                print('c::::::::::;' + str(c)+ word)
+            count.append(c)
+        recommended = set()
+        for i in np.argsort(count)[-4:]:
+            #print(str(i) +"::::::"+key[i])
+            recommended.add(courses_df['course_id'][i]+": "+ courses_df['names'][i] + ',course rate:' + '%.2f' % courses_df['Overall course rate'][i])
+        print("COURSES RECOMMENDED:")
+        for i in recommended:
+            print(i)
         pass
 
     def recommend_job(self, jobs_df):
