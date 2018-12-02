@@ -190,19 +190,24 @@ class Data:
     def job_wc(self, career):
         if career == "data scientist":
             df = self.ds_df
+            new_words = ['experience', 'entry', 'level', 'position', 'work', 'Job', 'will', 'required', 'requirement',
+                         'team', 'project', 'provide', 'knowledge']
         elif career == 'software engineer developer':
             df = self.sde_df
+            new_words = ['experience', 'entry', 'level', 'position', 'work', 'Job', 'will', 'required', 'requirement',
+                         'team', 'project', 'provide', 'knowledge', 'Jobs']
         else:  # career == 'consultant':
             df = self.consulting_df
+            new_words = ['experience', 'entry', 'level', 'position', 'work', 'Job', 'will', 'required', 'requirement',
+                         'team', 'project', 'provide', 'knowledge', 'Jobs']
 
         your_list = []
         for i in df['description']:
             your_list.append(i + ' ')
         s = ''.join(your_list)
         stopwords = set(STOPWORDS)
+
         # append new words to the stopwords list
-        new_words = ['experience', 'entry', 'level', 'position', 'work', 'Job', 'will', 'required', 'requirement',
-                     'team', 'project', 'provide', 'knowledge']
         new_stopwords = stopwords.union(new_words)
         wc = WordCloud(background_color="white",
                        width=800, height=600, margin=2,
