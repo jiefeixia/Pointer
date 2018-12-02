@@ -72,6 +72,8 @@ def download(file):
         sleep(5)
     except Exception:
         print("Limited updates. Please try again later.")
+    finally:
+        driver.close()
 
     # clean data
     df = pd.read_excel("data//united-states.xls", skiprows=2)

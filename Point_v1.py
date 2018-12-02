@@ -59,6 +59,10 @@ class Data:
 
         course_evl_combine_df = pd.DataFrame(
             course_evl_df.groupby('Course ID')['Overall course rate'].mean()).reset_index()
+        # convert Course ID from object dtype to int
+        course_evl_combine_df["Course ID"] = course_evl_combine_df["Course ID"].str.replace("-", "")
+        course_evl_combine_df = course_evl_combine_df[course_evl_combine_df["Course ID"].str.isdigit()]
+        course_evl_combine_df["Course ID"] = course_evl_combine_df["Course ID"].astype(int)
 
         self.course_df = course_evl_combine_df.merge(course_info_df, how="outer", left_on="Course ID",
                                                      right_on="course_id")
@@ -153,6 +157,12 @@ class Data:
         else:  # career == 'consultant':
             df = self.consulting_df
 
+        # count job num
+        df = df.dropna().groupby(['state'], as_index=False)['state'].agg({'cnt': 'count'})
+        df = df.iloc[1:]
+        df['cnt'] = pd.to_numeric(df['cnt']).astype(float)
+
+        # draw map
         dat = dict(type='choropleth',
                    colorscale='Viridis',
                    locations=df['state'],
@@ -199,7 +209,7 @@ if __name__ == "__main__":
     data = Data(*files_list)
 
     # instantiate Person
-    person = Person(input("Please enter your career:").lower, input("Please enter your location:").lower)
+    person = Person(input("Please enter your career:").lower(), input("Please enter your location:").lower())
 
     # recommend
     person.recommend_job()
