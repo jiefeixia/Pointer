@@ -6,6 +6,7 @@ from selenium.webdriver.chrome.options import Options
 from multiprocessing import Pool
 import os
 from functools import partial
+import re
 
 MAX_PAGE = 3  # max crawling page
 us_state_abbrev = {
@@ -95,6 +96,7 @@ def crawl_page(page_num, job, level="entrylevel", chrome_headless=False):
     locations = []
     est_salaries = []
     descriptions = []
+    qualifications = []
 
     cnt = 0
 
@@ -122,8 +124,12 @@ def crawl_page(page_num, job, level="entrylevel", chrome_headless=False):
             pass
 
         finally:
-            company = driver.find_elements_by_css_selector(
-                "#HeroHeaderModule > div.empWrapper > div.compInfo > a")[0].text
+            try:
+                company = driver.find_elements_by_css_selector(
+                    "#HeroHeaderModule > div.empWrapper > div.compInfo > a")[0].text
+            except IndexError:
+                company = None
+                pass
             try:
                 company_review = \
                     driver.find_elements_by_css_selector("div.compInfo > span.compactRating.lg.margRtSm")[0].text
@@ -144,12 +150,28 @@ def crawl_page(page_num, job, level="entrylevel", chrome_headless=False):
                 pass
             description = driver.find_elements_by_css_selector("#JobDescriptionContainer")[0].text
 
+            # find qualification in the description
+            qualification = None  # default not found
+            # assume qualification start with first qualification(s):/requirement(s):
+            start_pos_list = list(re.finditer("(qualification|requirement).{,3}:", description, re.IGNORECASE))
+            if len(start_pos_list) > 0:
+                start = start_pos_list[0].span()[1]
+                # assume qualification end with empty lines
+                end = len(description) - 1  # default to end
+                for match in re.finditer("(qualification|requirement).{,3}:", description, re.IGNORECASE):
+                    if match.span()[1] > start:  # first empty line appear after start position
+                        end = match.span()[1]
+                        break
+                qualification = description[start:end]
+
+
             names.append(name)
             companies.append(company)
             company_reviews.append(company_review)
             est_salaries.append(est_salary)
             locations.append(location)
             descriptions.append(description)
+            qualifications.append(qualification)
 
             cnt += 1
             print("finish crawling item ", cnt, " on page ", page_num)
@@ -157,7 +179,8 @@ def crawl_page(page_num, job, level="entrylevel", chrome_headless=False):
     driver.close()
 
     page = pd.DataFrame({"name": names, "company": companies, "company_review": company_reviews,
-                         "est_salary": est_salaries, "location": locations, "description": descriptions})
+                         "est_salary": est_salaries, "location": locations, "description": descriptions,
+                        "qualification": qualifications})
 
     # clean
     page['company_review'] = page['company_review'].replace('★', '', regex=True)
@@ -225,4 +248,4 @@ def find_state(loc):
 # for test purpose
 if __name__ == "__main__":
     # crawl("data/test.csv", "software engineer", max_page=1)
-    crawl_page(19, "consultant", chrome_headless=True)
+    crawl_page(20, "consultant", chrome_headless=True)
