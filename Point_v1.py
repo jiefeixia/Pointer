@@ -28,6 +28,7 @@ COURSE_INFO_FILE = "data/course_info.csv"
 COMPANY_LOC_FILE = "data/company_loc.csv"
 RENT_FILE = "data/rent_price.csv"
 
+
 # test file is less than 100 item, used for debug
 # CONSULTING_FILE = "data/consultant_test.csv"
 # SDE_FILE = "data/sde_test.csv"
@@ -39,20 +40,19 @@ class Person:
         self.career = career
         self.location = location
 
-    def recommend_course_onskills(skillsinput, course_merged):
+    def recommend_course_onskills(skillsinput, data):
         # skillsinput is the skills user want to learn, input seperated by space
-        coursedes = list(course_merged['description'])
-        courseout = list(course_merged['learning_outcome'])
+        coursedes = list(data.course_df['description'])
+        courseout = list(data.course_df['learning_outcome'])
         course = []
         for i in range(len(courseout)):
-            if (type(coursedes[i]) != str):
+            if type(coursedes[i]) != str:
                 coursedes[i] = str(coursedes[i])  # make sure data type are string
-            if (type(courseout[i]) != str):
+            if type(courseout[i]) != str:
                 courseout[i] = str(courseout[i])  # make sure data type are string
             course.append(coursedes[i] + courseout[i])  # combine description and outcome together
 
         # deal with stopwords
-        import codecs
         stop = open('corenlp_stopwords.txt', encoding='utf-8')
         st = stop.readlines()
         for i in range(len(st)):
@@ -90,52 +90,52 @@ class Person:
         recommended = []
         for i in range(len(key)):
             for word in skillsinput.split(' '):
-                if (word in key[i]):
+                if word in key[i]:
                     recommended.append(
-                        course_merged['course_id'][i] + ':' + course_merged['names'][i] + ',course rate:' + '%.2f' % (
-                        f_merged['Overall course rate'][i]))
+                        data.course_df['course_id'][i] + ':' + data.course_df['names'][i] + ',course rate:' + '%.2f' % (
+                            data.course_df['Overall course rate'][i]))
         print("COURSES RECOMMENDED:")
         for i in recommended:
             print(i)
 
-    def recommend_course(self, jobs_df, courses_df):
-        # TODO(liwei)
-        
-        career = 'data science'
-        loc = 'CA'
+    def recommend_course(self, data):
+
         if self.career == 'data science':
-            job = pd.read_csv("ds.csv")
+            job = data.ds_df
         elif self.career == 'sde':
-            job = pd.read_csv("sde_csv")
+            job = data.sde_df
         elif self.career == 'consultant':
-            job = pd.read_csv("consultant.csv")
+            job = data.consulting_df
+
         desc = []
         for i in range(len(job)):
-            if loc in str(job['location'][i]):
-                desc.append(job['description'][i].replace(',',' '))
-                
-        coursedes = list(courses_df['description'])
-        courseout = list(courses_df['learning_outcome'])
+            if self.location in str(job['location'][i]):
+                desc.append(job['description'][i].replace(',', ' '))
+
+        coursedes = list(data.courses_df['description'])
+        courseout = list(data.courses_df['learning_outcome'])
+
         course = []
         for i in range(len(courseout)):
-            if (type(coursedes[i]) != str):
-                coursedes[i] = str(coursedes[i]) #make sure data type are string
-            if (type(courseout[i]) != str):
-                courseout[i] = str(courseout[i]) #make sure data type are string
-            course.append(coursedes[i] + courseout[i]) # combine description and outcome together
-        
+            if type(coursedes[i]) != str:
+                coursedes[i] = str(coursedes[i])  # make sure data type are string
+            if type(courseout[i]) != str:
+                courseout[i] = str(courseout[i])  # make sure data type are string
+            course.append(coursedes[i] + courseout[i])  # combine description and outcome together
+
         # deal with stopwords
-        import codecs
-        stop= open('corenlp_stopwords.txt',encoding = 'utf-8')
+        stop = open('corenlp_stopwords.txt', encoding='utf-8')
         st = stop.readlines()
         for i in range(len(st)):
-            st[i]=st[i].strip('\n') # delete '\n' in each word
-        st.extend(['allow','outcomes','some','mini','another','student','in','or','either','final','exam','mid','by',
-                  'areas','also','today','course','Outcomes:','will','Work','Students','The','It','us','class','Learning',
-                  'course,',' ','try','on','results','how','what','he','she','courses','professor','their','one','two',
-                    'develop','problem','problems','perform','re','job','ed','edu','many','year','years','multi','become','use',
-                  'homework','come','came','three','skills','art','life','success','now','career','students','short','long','able',
-                  'professional','arts','master','across','field','target','using','cut'])
+            st[i] = st[i].strip('\n')  # delete '\n' in each word
+        st.extend(
+            ['allow', 'outcomes', 'some', 'mini', 'another', 'student', 'in', 'or', 'either', 'final', 'exam', 'mid',
+             'by', 'areas', 'also', 'today', 'course', 'Outcomes:', 'will', 'Work', 'Students', 'The', 'It', 'us',
+             'class', 'Learning', 'course,', ' ', 'try', 'on', 'results', 'how', 'what', 'he', 'she', 'courses',
+             'professor', 'their', 'one', 'two', 'develop', 'problem', 'problems', 'perform', 're', 'job', 'ed', 'edu',
+             'many', 'year', 'years', 'multi','become', 'use', 'homework', 'come', 'came', 'three', 'skills', 'art',
+             'life', 'success', 'now', 'career', 'students', 'short', 'long', 'able', 'professional', 'arts', 'master',
+             'across', 'field', 'target', 'using', 'cut'])
         for i in range(len(course)):
             out = ''
             for word in course[i].split(' '):
@@ -143,19 +143,19 @@ class Person:
                     out = out + word + ' '
             course[i] = out
 
-        vectorizer = CountVectorizer()#
-        transformer = TfidfTransformer()#                                                                                                                                                                                                                                                                               词语的tf-idf权值  
-        tfidf = transformer.fit_transform(vectorizer.fit_transform(course))#calculate tf-idf
-        word = vectorizer.get_feature_names()# all words in the word bag
-        weight=tfidf.toarray()# get matrix of tfidf
+        vectorizer = CountVectorizer()  #
+        transformer = TfidfTransformer()  # 词语的tf-idf权值
+        tfidf = transformer.fit_transform(vectorizer.fit_transform(course))  # calculate tf-idf
+        word = vectorizer.get_feature_names()  # all words in the word bag
+        weight = tfidf.toarray()  # get matrix of tfidf
         key = []
         for i in range(len(weight)):
             doc = {}
             t = np.argsort(-weight[i])
             s = ''
             for j in range(40):
-                #print(word[t[j]], ':', weight[i][t[j]])
-                if (word[t[j]] not in st):
+                # print(word[t[j]], ':', weight[i][t[j]])
+                if word[t[j]] not in st:
                     s = s + ' ' + word[t[j]]
             key.append(s)
         count = []
@@ -165,14 +165,15 @@ class Person:
                 if word != '':
                     for j in desc:
                         a = j.count(word)
-                        #print('a;:::::::::::' + str(a)+ word )
+                        # print('a;:::::::::::' + str(a)+ word )
                         c += a
-                print('c::::::::::;' + str(c)+ word)
+                print('c::::::::::;' + str(c) + word)
             count.append(c)
         recommended = set()
         for i in np.argsort(count)[-4:]:
-            #print(str(i) +"::::::"+key[i])
-            recommended.add(courses_df['course_id'][i]+": "+ courses_df['names'][i] + ',course rate:' + '%.2f' % courses_df['Overall course rate'][i])
+
+            recommended.add(data.courses_df['course_id'][i] + ": " + data.courses_df['names'][i] + ',course rate:' +
+                            '%.2f' % data.courses_df['Overall course rate'][i])
         print("COURSES RECOMMENDED:")
         for i in recommended:
             print(i)
@@ -308,13 +309,13 @@ class Data:
 
         # draw map
         map_data = dict(type='choropleth',
-                    colorscale='Viridis',
-                    locations=df['state'],
-                    z=df['cnt'],
-                    locationmode='USA-states',
-                    marker=dict(line=dict(color='rgb(255,255,255)', width=2)),
-                    colorbar={'title': "Count of jobs"}
-                    )
+                        colorscale='Viridis',
+                        locations=df['state'],
+                        z=df['cnt'],
+                        locationmode='USA-states',
+                        marker=dict(line=dict(color='rgb(255,255,255)', width=2)),
+                        colorbar={'title': "Count of jobs"}
+                        )
 
         layout = dict(title='Consultant Job Distribution around US',
                       geo=dict(scope='usa', showlakes=True))
