@@ -3,6 +3,7 @@ from selenium.common.exceptions import WebDriverException
 from selenium.common.exceptions import StaleElementReferenceException
 import time
 import pandas as pd
+from selenium.webdriver.chrome.options import Options
 
 MAX_PAGE = 10  # max crawling page
 
@@ -18,7 +19,9 @@ def crawl(file, job, level="entrylevel"):
     est_salaries = []
     descriptions = []
 
-    driver = webdriver.Chrome()
+    options = Options()
+    options.headless = True
+    driver = webdriver.Chrome(options=options)
     driver.get(start_url)
 
     cnt = 0
@@ -27,13 +30,13 @@ def crawl(file, job, level="entrylevel"):
         for job in driver.find_elements_by_css_selector('#MainCol > div > ul > li'):
             try:
                 job.click()
+                time.sleep(3)
             except WebDriverException:
                 driver.find_elements_by_css_selector(
                     "#JAModal > div > div.prettyEmail.modalContents > div.xBtn")[0].click()
                 print("successfully close popup")
 
             try:
-                time.sleep(3)
                 name = driver.find_elements_by_css_selector("#HeroHeaderModule > div.empWrapper > div.header > h1")[
                     0].text
                 company = driver.find_elements_by_css_selector(
