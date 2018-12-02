@@ -3,16 +3,33 @@ This is the Course project for Data Focus Python. You can use this program to fi
 
 
 # Instruction
-1. welcome page "welcome to Pointer" (user can choose to see summary statistics to compare three tracks or enter specific career)
-* User wants to see the summary: Show the summary statistics for Current Job Market (Salary Histogram, Company Review Histogram and WordCloud for Job Description)
-* User enters specific career path and he can choose if he want to see recommended courses or recommended jobs:
+1. Welcome page "welcome to Pointer", Choose:
+      1.1 Summary statistics for three tracks:
+               Salary Histogram, 
+               Company Review Histogram, 
+               WordCloud for Job Description,
+               Job Map Distribution  
+      
+      1.2 Enter specific career:
 
-For Course (including Course ID, Course Name and Course Evaluation Score):
-** User chooses if he want to learn specific skills, then we will recommend the courses based on the skills
-** User does not choose specific skills and we will recommend courses
-
-For Job (including Job Name, Company Name, Average Salary, Location):
-
+        1.21 Choose to show Recommended Course:
+		1.211 User chooses if he want to learn specific skills, then we will 			      recommend the courses based on the skills
+		1.212 User does not choose specific skills and we will recommend courses
+               	
+		Course ID, 
+               	Course Name,
+               	Course Evaluation Score
+        
+        
+        1.22 Choose to show Recommended Job (enter optional specific location):
+		
+		Job Name, 
+   		Company Name, 
+   		Average Salary, 
+   		Location,
+   		Renting Map (optional)
+		
+	       
 
 
 1. Find insigts about your desired jobs
