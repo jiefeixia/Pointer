@@ -164,10 +164,7 @@ def crawl_page(page_num, job, level="entrylevel", chrome_headless=False):
     page['salary_low'] = salary_range[0].map(min_salary)
     page['salary_high'] = salary_range[1].map(max_salary)
 
-    page["state"] = page["location"].apply(lambda loc: us_state_abbrev[state_full]
-    if state_full.lower() in loc.lower()
-       or us_state_abbrev[state_full] in loc.lower() else None
-                                           for state_full in us_state_abbrev.keys())
+    page["state"] = page["location"].apply(find_state)
 
     page = page.drop("est_salary", axis=1)
 
