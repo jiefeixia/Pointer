@@ -176,14 +176,14 @@ class Data:
 
     def rent_map(self):
         map_data = dict(type='choropleth',
-                    colorscale='Viridis',
-                    reversescale=True,
-                    locations=self.rent_df['state'],
-                    z=self.rent_df['rent'],
-                    locationmode='USA-states',
-                    text=self.rent_df['Region Name'],
-                    marker=dict(line=dict(color='rgb(255,255,255)', width=1)),
-                    colorbar={'title': "Rent(yearly)"})
+                        colorscale='Viridis',
+                        reversescale=True,
+                        locations=self.rent_df['state'],
+                        z=self.rent_df['rent'],
+                        locationmode='USA-states',
+                        text=self.rent_df['Region Name'],
+                        marker=dict(line=dict(color='rgb(255,255,255)', width=1)),
+                        colorbar={'title': "Rent(yearly)"})
         layout = dict(title='Rent Distribution around US',
                       geo=dict(scope='usa',
                                showlakes=True))

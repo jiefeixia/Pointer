@@ -6,22 +6,28 @@ import pandas as pd
 from selenium.webdriver.chrome.options import Options
 from multiprocessing import Pool
 import os
+from functools import partial
 
 MAX_PAGE = 15  # max crawling page
 
 
-def crawl(file, job, level="entrylevel"):
-    total = pd.DataFrame()
+def crawl(file, job, level="entrylevel", max_page=MAX_PAGE):
+
     with Pool(os.cpu_count()) as p:
-        page_list = p.map(crawl_page, [(page_num, job, level) for page_num in range(1, MAX_PAGE+1)])
+        partial_crawl_page = partial(crawl_page,  job, level)
+        page_list = p.map(partial_crawl_page, [page_num for page_num in range(1, max_page + 1)])
+
+    total = pd.DataFrame()
     for page_df in page_list:
-        total.append(page_df, ignore_index=True)
+        total = total.append(page_df, ignore_index=True)
+
+    print("finish crawling " + str(total.shape[0]) + " items")
     total.to_csv(file, index=False)
 
 
 # single thread function
-def crawl_page(page_num, job, level):
-    start_url = "https://www.glassdoor.com/Job/" + job + "-jobs-SRCH_KO0, 10_IP" + page_num + ".htm?jobType=" + level
+def crawl_page(job, level, page_num):
+    start_url = "https://www.glassdoor.com/Job/" + job + "-jobs-SRCH_KO0, 10_IP" + str(page_num) + ".htm?jobType=" + level
     options = Options()
     options.headless = True
     driver = webdriver.Chrome(options=options)
@@ -78,7 +84,7 @@ def crawl_page(page_num, job, level):
             descriptions.append(description)
 
             cnt += 1
-            print("finish crawling", cnt)
+            print("finish crawling item ", cnt, " on page ", page_num)
 
         except StaleElementReferenceException:
             print("StaleElementReferenceException, Pass")
@@ -108,7 +114,6 @@ def crawl_page(page_num, job, level):
     locations.clear()
     est_salaries.clear()
     descriptions.clear()
-    print("save item: ", cnt)
 
     return page
 
@@ -142,3 +147,8 @@ def max_salary(amount):
         return int(amount[1:amount.find("Per Hour")]) * 8 * 40 * 52
     else:
         return amount
+
+
+# for test purpose
+if __name__ == "__main__":
+    crawl("data/test.csv", "consultant", max_page=3)
