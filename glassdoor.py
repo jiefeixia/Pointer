@@ -1,6 +1,5 @@
 from selenium import webdriver
-from selenium.common.exceptions import WebDriverException
-from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import WebDriverException, ElementNotVisibleException, StaleElementReferenceException
 import time
 import pandas as pd
 from selenium.webdriver.chrome.options import Options
@@ -110,6 +109,19 @@ def crawl_page(page_num, job, level="entrylevel", chrome_headless=False):
 
         try:
             name = driver.find_elements_by_css_selector("#HeroHeaderModule > div.empWrapper > div.header > h1")[0].text
+        except IndexError:
+            try:  # in case pop up
+                driver.find_elements_by_css_selector("#JAModal > div > div.prettyEmail.modalContents > div.xBtn")[
+                    0].click()  # close popup
+                print("successfully close popup")
+            except ElementNotVisibleException:  # in case name selector change
+                name = driver.find_elements_by_css_selector(
+                    "#HeroHeaderModule > div.empWrapper.ctasTest > div.empInfo > div.header > h1")[0].text
+        except StaleElementReferenceException:  # need to update element
+            print("StaleElementReferenceException, Pass")
+            pass
+
+        finally:
             company = driver.find_elements_by_css_selector(
                 "#HeroHeaderModule > div.empWrapper > div.compInfo > a")[0].text
             try:
@@ -141,15 +153,6 @@ def crawl_page(page_num, job, level="entrylevel", chrome_headless=False):
 
             cnt += 1
             print("finish crawling item ", cnt, " on page ", page_num)
-
-        except IndexError:
-            driver.find_elements_by_css_selector("#JAModal > div > div.prettyEmail.modalContents > div.xBtn")[
-                0].click()  # close popup
-            print("successfully close popup")
-
-        except StaleElementReferenceException:
-            print("StaleElementReferenceException, Pass")
-            pass
 
     driver.close()
 
@@ -222,4 +225,4 @@ def find_state(loc):
 # for test purpose
 if __name__ == "__main__":
     # crawl("data/test.csv", "software engineer", max_page=1)
-    crawl_page(1, "software engineer", chrome_headless=True)
+    crawl_page(19, "consultant", chrome_headless=True)

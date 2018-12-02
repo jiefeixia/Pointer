@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from wordcloud import WordCloud, STOPWORDS
 import numpy as np
 import plotly.graph_objs as go
-from plotly.offline import iplot
 import plotly
 
 import glassdoor
@@ -21,18 +20,18 @@ from sklearn.feature_extraction.text import CountVectorizer
 this is the main function
 """
 
-# CONSULTING_FILE = "data/consultant.csv"
-# SDE_FILE = "data/sde.csv"
-# DS_FILE = "data/ds.csv"
+CONSULTING_FILE = "data/consultant.csv"
+SDE_FILE = "data/sde.csv"
+DS_FILE = "data/ds.csv"
 COURSE_EVL_FILE = "data/course_evl.csv"
 COURSE_INFO_FILE = "data/course_info.csv"
 COMPANY_LOC_FILE = "data/company_loc.csv"
 RENT_FILE = "data/rent_price.csv"
 
 # test file is less than 100 item, used for debug
-CONSULTING_FILE = "data/consultant_test.csv"
-SDE_FILE = "data/sde_test.csv"
-DS_FILE = "data/ds_test.csv"
+# CONSULTING_FILE = "data/consultant_test.csv"
+# SDE_FILE = "data/sde_test.csv"
+# DS_FILE = "data/ds_test.csv"
 
 
 class Person:
@@ -138,11 +137,11 @@ class Data:
     def update(filename):
         print("Updating " + filename)
         if filename == CONSULTING_FILE:
-            glassdoor.crawl(file, "consultant", "entrylevel")
+            glassdoor.crawl(file, "consultant", "entrylevel", max_page=19)
         elif filename == SDE_FILE:
-            glassdoor.crawl(file, "software engineer", "entrylevel")
+            glassdoor.crawl(file, "software engineer", "entrylevel", max_page=29)
         elif filename == DS_FILE:
-            glassdoor.crawl(file, "data scientist", "entrylevel")
+            glassdoor.crawl(file, "data scientist", "entrylevel", max_page=10)
         elif filename == COURSE_EVL_FILE:
             heinz_course_api.crawl(file)
         elif filename == COURSE_INFO_FILE:

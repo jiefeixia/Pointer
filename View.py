@@ -79,7 +79,7 @@ class JobFinder(object):
         self.labImage.configure(image=img)
         self.labImage.image = img
 
-        fileCourseDesc = open("data/course_info.csv", "r")
+        fileCourseDesc = open("data/course_info.txt", "r")
         courseContent = fileCourseDesc.read()
         self.labCourseDescription.configure(state=NORMAL)
         self.labCourseDescription.insert(END, courseContent)
