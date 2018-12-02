@@ -46,6 +46,8 @@ def crawl(file, andrew_id, password):
                 if len(apd) == 25:
                     table.append(apd)
                     cnt += 1
+
+            # click next page
             driver.find_elements_by_css_selector('#_ctl0_cphContent_grd1_DXPagerTop > a[aria-label="Next"]')[0].click()
             page_num += 1
 
@@ -60,6 +62,9 @@ def crawl(file, andrew_id, password):
 
     driver.close()
 
-    df = df.remove
+    # convert Course ID from object dtype to int
+    df["Course ID"] = df["Course ID"].str.replace("-", "")
+    df = df[df["Course ID"].str.isdigit()]
+    df["Course ID"] = df["Course ID"].astype(int)
 
     df.to_csv(file, index=False)

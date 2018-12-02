@@ -4,13 +4,28 @@ from selenium.common.exceptions import StaleElementReferenceException
 import time
 import pandas as pd
 from selenium.webdriver.chrome.options import Options
+from multiprocessing import Pool
+import os
 
-MAX_PAGE = 10  # max crawling page
+MAX_PAGE = 15  # max crawling page
 
 
 def crawl(file, job, level="entrylevel"):
-    # job type
-    start_url = "https://www.glassdoor.com/Job/jobs.htm?sc.keyword=" + job + "&jobType=" + level
+    total = pd.DataFrame()
+    with Pool(os.cpu_count()) as p:
+        page_list = p.map(crawl_page, [(page_num, job, level) for page_num in range(1, MAX_PAGE+1)])
+    for page_df in page_list:
+        total.append(page_df, ignore_index=True)
+    total.to_csv(file, index=False)
+
+
+# single thread function
+def crawl_page(page_num, job, level):
+    start_url = "https://www.glassdoor.com/Job/" + job + "-jobs-SRCH_KO0, 10_IP" + page_num + ".htm?jobType=" + level
+    options = Options()
+    options.headless = True
+    driver = webdriver.Chrome(options=options)
+    driver.get(start_url)
 
     names = []
     companies = []
@@ -19,93 +34,83 @@ def crawl(file, job, level="entrylevel"):
     est_salaries = []
     descriptions = []
 
-    options = Options()
-    options.headless = True
-    driver = webdriver.Chrome(options=options)
-    driver.get(start_url)
-
     cnt = 0
-    total = pd.DataFrame()
-    for i in range(0, MAX_PAGE):
-        for job in driver.find_elements_by_css_selector('#MainCol > div > ul > li'):
+
+    for job in driver.find_elements_by_css_selector('#MainCol > div > ul > li'):
+        try:
+            job.click()
+            time.sleep(3)
+        except WebDriverException:
+            driver.find_elements_by_css_selector(
+                "#JAModal > div > div.prettyEmail.modalContents > div.xBtn")[0].click()
+            print("successfully close popup")
+
+        try:
+            name = driver.find_elements_by_css_selector("#HeroHeaderModule > div.empWrapper > div.header > h1")[
+                0].text
+            company = driver.find_elements_by_css_selector(
+                "#HeroHeaderModule > div.empWrapper > div.compInfo > a")[0].text
             try:
-                job.click()
-                time.sleep(3)
-            except WebDriverException:
-                driver.find_elements_by_css_selector(
-                    "#JAModal > div > div.prettyEmail.modalContents > div.xBtn")[0].click()
-                print("successfully close popup")
+                company_review = \
+                    driver.find_elements_by_css_selector("div.compInfo > span.compactRating.lg.margRtSm")[0].text
 
-            try:
-                name = driver.find_elements_by_css_selector("#HeroHeaderModule > div.empWrapper > div.header > h1")[
-                    0].text
-                company = driver.find_elements_by_css_selector(
-                    "#HeroHeaderModule > div.empWrapper > div.compInfo > a")[0].text
-                try:
-                    company_review = \
-                        driver.find_elements_by_css_selector("div.compInfo > span.compactRating.lg.margRtSm")[0].text
-
-                except IndexError:
-                    company_review = None
-                    pass
-                try:
-                    est_salary = driver.find_elements_by_css_selector("div.salaryRow > div > span")[0].text
-                except IndexError:
-                    est_salary = None
-                    pass
-                try:
-                    location = driver.find_elements_by_css_selector(
-                        "#HeroHeaderModule > div.empWrapper > div.compInfo > span:nth-child(3)")[0].text
-                except IndexError:
-                    location = None
-                    pass
-                description = driver.find_elements_by_css_selector("#JobDescriptionContainer")[0].text
-
-                names.append(name)
-                companies.append(company)
-                company_reviews.append(company_review)
-                est_salaries.append(est_salary)
-                locations.append(location)
-                descriptions.append(description)
-
-                cnt += 1
-                print("finish crawling", cnt)
-
-            except StaleElementReferenceException:
-                print("StaleElementReferenceException, Pass")
-                pass
             except IndexError:
-                driver.find_elements_by_css_selector("#JAModal > div > div.prettyEmail.modalContents > div.xBtn")[
-                    0].click()  # close popup
-                print("successfully close popup")
+                company_review = None
+                pass
+            try:
+                est_salary = driver.find_elements_by_css_selector("div.salaryRow > div > span")[0].text
+            except IndexError:
+                est_salary = None
+                pass
+            try:
+                location = driver.find_elements_by_css_selector(
+                    "#HeroHeaderModule > div.empWrapper > div.compInfo > span:nth-child(3)")[0].text
+            except IndexError:
+                location = None
+                pass
+            description = driver.find_elements_by_css_selector("#JobDescriptionContainer")[0].text
 
-        driver.find_element_by_css_selector("#FooterPageNav > div > ul > li.next > a").click()
-        print("finish page ", i)
+            names.append(name)
+            companies.append(company)
+            company_reviews.append(company_review)
+            est_salaries.append(est_salary)
+            locations.append(location)
+            descriptions.append(description)
 
-        page = pd.DataFrame({"name": names, "company": companies, "company_review": company_reviews,
-                             "est_salary": est_salaries, "location": locations, "description": descriptions})
+            cnt += 1
+            print("finish crawling", cnt)
 
-        # clean
-        page['company_review'] = page['company_review'].replace('★', '', regex=True)
-        page['company_review'].fillna("", inplace=True)
-        page['est_salary'].fillna("", inplace=True)
-        salary_range = page['est_salary'].str.split("-", n=1, expand=True)
-        page['salary_low'] = salary_range[0].map(min_salary)
-        page['salary_high'] = salary_range[1].map(max_salary)
-
-        # save
-        page.to_csv(file, index=False, mode="a", header=False)
-        total = total.append(page, ignore_index=True)
-
-        names.clear()
-        companies.clear()
-        company_reviews.clear()
-        locations.clear()
-        est_salaries.clear()
-        descriptions.clear()
-        print("save item: ", cnt)
+        except StaleElementReferenceException:
+            print("StaleElementReferenceException, Pass")
+            pass
+        except IndexError:
+            driver.find_elements_by_css_selector("#JAModal > div > div.prettyEmail.modalContents > div.xBtn")[
+                0].click()  # close popup
+            print("successfully close popup")
 
     driver.close()
+    print("finish page ", page_num)
+
+    page = pd.DataFrame({"name": names, "company": companies, "company_review": company_reviews,
+                         "est_salary": est_salaries, "location": locations, "description": descriptions})
+
+    # clean
+    page['company_review'] = page['company_review'].replace('★', '', regex=True)
+    page['company_review'].fillna("", inplace=True)
+    page['est_salary'].fillna("", inplace=True)
+    salary_range = page['est_salary'].str.split("-", n=1, expand=True)
+    page['salary_low'] = salary_range[0].map(min_salary)
+    page['salary_high'] = salary_range[1].map(max_salary)
+
+    names.clear()
+    companies.clear()
+    company_reviews.clear()
+    locations.clear()
+    est_salaries.clear()
+    descriptions.clear()
+    print("save item: ", cnt)
+
+    return page
 
 
 def min_salary(amount):

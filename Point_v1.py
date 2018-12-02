@@ -59,10 +59,6 @@ class Data:
 
         course_evl_combine_df = pd.DataFrame(
             course_evl_df.groupby('Course ID')['Overall course rate'].mean()).reset_index()
-        # convert Course ID from object dtype to int
-        course_evl_combine_df["Course ID"] = course_evl_combine_df["Course ID"].str.replace("-", "")
-        course_evl_combine_df = course_evl_combine_df[course_evl_combine_df["Course ID"].str.isdigit()]
-        course_evl_combine_df["Course ID"] = course_evl_combine_df["Course ID"].astype(int)
 
         self.course_df = course_evl_combine_df.merge(course_info_df, how="outer", left_on="Course ID",
                                                      right_on="course_id")
