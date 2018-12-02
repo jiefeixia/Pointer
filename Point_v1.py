@@ -53,7 +53,7 @@ class Person:
             course.append(coursedes[i] + courseout[i])  # combine description and outcome together
 
         # deal with stopwords
-        stop = open('data/corenlp_stopwords.txt', encoding='utf-8')
+        stop = open('corenlp_stopwords.txt', encoding='utf-8')
         st = stop.readlines()
         for i in range(len(st)):
             st[i] = st[i].strip('\n')  # delete '\n' in each word
