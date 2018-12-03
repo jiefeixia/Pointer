@@ -1,4 +1,4 @@
-# Pointer
+# :point_right: Pointer
 This is the Course project for Data Focus Python. You can use this program to find your desired job!
 
 
