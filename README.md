@@ -1,4 +1,4 @@
-# Pointer
+# :point_right: Pointer
 This is the Course project for Data Focus Python. You can use this program to find your desired job!
 
 
@@ -39,8 +39,8 @@ Welcome page "welcome to Pointer", Choose:
 # Installation
 * Download the whole folder and decompression
 * Required environment: python 3.5+
-* Required packages: `requirement.txt`. You can install by `pip install -r requirement.txt`
-  You need to download the chrome driver and add it to your path to use selenium.
+* Required packages: `requirement.txt`. You can install by `pip install -r requirement.txt`  
+  You need to download the [chrome driver](http://chromedriver.chromium.org/downloads) and add its path to your environment variable for selenium.
 * If you are using Anaconda, don't forget to activate your environment by `activate env_name`(you can find your environment name by `conda env list`). Or you might see the error  
 ```
 Drawing salary histogram for consultant(predicted by glassdoor)
