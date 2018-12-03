@@ -21,10 +21,17 @@ For Job (including Job Name, Company Name, Average Salary, Location):
 
 
 # Installation
-required environment: python 3.5+, required packages are listed in requirement.txt, you can install by `pip install -r requirement.txt`
+* download the whole folder and decompression
+* required environment: python 3.5+, required packages are listed in requirement.txt, you can install by `pip install -r requirement.txt`
+* If you are using Anaconda, don't forget to activate your environment by `activate env_name`(you can find your environment name by `conda env list`). Or you might see the error
+`Drawing salary histogram for consultant(predicted by glassdoor)
+This application failed to start because it could not find or load the Qt platform plugin "windows"
+in "".
 
-download all .py file (you don't need to download the data folder, the program can crawl the most updated data automatically when first lauched)
+Available platform plugins are: direct2d, minimal, offscreen, windows.
 
-run Point_v1.py
+Reinstalling the application may fix this problem.`
+
+* run Point_v1.py
 
  
