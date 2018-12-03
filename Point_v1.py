@@ -349,7 +349,7 @@ def career_num():
     num = input("\n\nPlease enter the job type number:\n"
                 "1. consultant\n"
                 "2. software engineer\n"
-                "3. data scientist")
+                "3. data scientist\n")
 
     if num == "1":
         return "consultant"
@@ -381,7 +381,7 @@ if __name__ == "__main__":
                 "1 Insights for finding your career\n"
                 "2 Recommendation job and course for you\n"
                 "3 Update the data\n"
-                "4 Exit")
+                "4 Exit\n")
 
     while run != "4":
         if run == "1":  # generate graph
@@ -395,7 +395,7 @@ if __name__ == "__main__":
             try:
                 graph_num = int(graph_num)
                 if graph_num <= 4:
-                    print("You can choose your preferred job type")
+                    print("You can choose your preferred job type:\n")
                     career = career_num()
                     if career is None:
                         continue
@@ -426,15 +426,24 @@ if __name__ == "__main__":
             if sub_run == "a":
                 person.recommend_course(database)
             elif sub_run == "b":
-                person.location = input("Please enter your preferred working location:").lower()
+                person.location = input("Please enter your preferred working location:\n").lower()
                 person.recommend_job(database)
             else:
                 print("Cannot find your required function")
         elif run == "3":  # update data
             print("file list:")
-            for idx, file in iter(files_list):
+            for idx, file in enumerate(files_list):
                 print(str(idx) + ". " + file)
-            Data.update(input("please input the file number you want to update"))
+            file_num = input("please input the file number you want to update:\n")
+            try:
+                if int(file_num) in range(0,len(files_list)):
+                    Data.update(files_list[int(file_num)])
+                else:
+                    print("Cannot find the file you want to update")
+            except ValueError:
+                print("Cannot find the file you want to update")
+                pass
+
         else:  # other input number
             print("Cannot find your input function number")
 
@@ -443,7 +452,7 @@ if __name__ == "__main__":
                     "1 Insights for finding your career\n"
                     "2 Recommendation job and course for you\n"
                     "3 Update the data\n"
-                    "4 Exit")
+                    "4 Exit\n")
 
     print("Good luck on finding your job, bye!")
 
