@@ -5,6 +5,7 @@ from wordcloud import WordCloud, STOPWORDS
 import numpy as np
 import plotly.graph_objs as go
 import plotly
+import os
 
 import glassdoor
 import heinz_course_api
@@ -12,7 +13,6 @@ import smartevals
 import geo
 import rent
 
-from sklearn import feature_extraction
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_extraction.text import CountVectorizer
 
@@ -38,79 +38,21 @@ RENT_FILE = "data/rent_price.csv"
 class Person:
     def __init__(self, career, location=None):
         self.career = career
-        self.location = location
-
-    def recommend_course_onskills(skillsinput, data):
-        # skillsinput is the skills user want to learn, input seperated by space
-        coursedes = list(data.course_df['description'])
-        courseout = list(data.course_df['learning_outcome'])
-        course = []
-        for i in range(len(courseout)):
-            if type(coursedes[i]) != str:
-                coursedes[i] = str(coursedes[i])  # make sure data type are string
-            if type(courseout[i]) != str:
-                courseout[i] = str(courseout[i])  # make sure data type are string
-            course.append(coursedes[i] + courseout[i])  # combine description and outcome together
-
-        # deal with stopwords
-        stop = open('corenlp_stopwords.txt', encoding='utf-8')
-        st = stop.readlines()
-        for i in range(len(st)):
-            st[i] = st[i].strip('\n')  # delete '\n' in each word
-        st.extend(
-            ['allow', 'outcomes', 'some', 'mini', 'another', 'student', 'in', 'or', 'either', 'final', 'exam', 'mid',
-             'by',
-             'areas', 'also', 'today', 'course', 'Outcomes:', 'will', 'Work', 'Students', 'The', 'It', 'us', 'class',
-             'Learning',
-             'course,'])
-        for i in range(len(course)):
-            out = ''
-            for word in course[i].split(' '):
-                if word not in st:
-                    out = out + word + ' '
-            course[i] = out
-
-        # get tfidf and extract key words
-        vectorizer = CountVectorizer()  #
-        transformer = TfidfTransformer()  # 词语的tf-idf权值
-        tfidf = transformer.fit_transform(vectorizer.fit_transform(course))  # calculate tf-idf
-        word = vectorizer.get_feature_names()  # all words in the word bag
-        weight = tfidf.toarray()  # get matrix of tfidf
-        key = []
-        for i in range(len(weight)):
-            doc = {}
-            t = np.argsort(-weight[i])
-            s = ''
-            for j in range(40):
-                # print(word[t[j]], ':', weight[i][t[j]])
-                s = s + ' ' + word[t[j]]
-            key.append(s)
-
-        # print recommended courses based on skill sets matched  
-        recommended = []
-        for i in range(len(key)):
-            for word in skillsinput.split(' '):
-                if word in key[i]:
-                    recommended.append(
-                        data.course_df['course_id'][i] + ':' + data.course_df['names'][i] + ',course rate:' + '%.2f' % (
-                            data.course_df['Overall course rate'][i]))
-        print("COURSES RECOMMENDED:")
-        for i in recommended:
-            print(i)
+        if location is not None:
+            self.location = location.lower()
 
     def recommend_course(self, data):
-
-        if self.career == 'data science':
+        if self.career == 'data scientist':
             job = data.ds_df
-        elif self.career == 'sde':
+        elif self.career == 'software engineer':
             job = data.sde_df
         elif self.career == 'consultant':
             job = data.consulting_df
 
-        desc = []
-        for i in range(len(job)):
-            if self.location in str(job['location'][i]):
-                desc.append(job['description'][i].replace(',', ' '))
+        print("\n\n*************************" + "recommend courses of " + career + "***************************")
+        desc = job["description"].tolist()
+
+        print("calculating recommend courses")
 
         coursedes = list(data.course_df['description'])
         courseout = list(data.course_df['learning_outcome'])
@@ -133,7 +75,7 @@ class Person:
              'by', 'areas', 'also', 'today', 'course', 'Outcomes:', 'will', 'Work', 'Students', 'The', 'It', 'us',
              'class', 'Learning', 'course,', ' ', 'try', 'on', 'results', 'how', 'what', 'he', 'she', 'courses',
              'professor', 'their', 'one', 'two', 'develop', 'problem', 'problems', 'perform', 're', 'job', 'ed', 'edu',
-             'many', 'year', 'years', 'multi','become', 'use', 'homework', 'come', 'came', 'three', 'skills', 'art',
+             'many', 'year', 'years', 'multi', 'become', 'use', 'homework', 'come', 'came', 'three', 'skills', 'art',
              'life', 'success', 'now', 'career', 'students', 'short', 'long', 'able', 'professional', 'arts', 'master',
              'across', 'field', 'target', 'using', 'cut'])
         for i in range(len(course)):
@@ -144,17 +86,16 @@ class Person:
             course[i] = out
 
         vectorizer = CountVectorizer()  #
-        transformer = TfidfTransformer()  # 词语的tf-idf权值
+        transformer = TfidfTransformer()  #
         tfidf = transformer.fit_transform(vectorizer.fit_transform(course))  # calculate tf-idf
         word = vectorizer.get_feature_names()  # all words in the word bag
-        weight = tfidf.toarray()  # get matrix of tfidf
+        weight = tfidf.toarray()  # get matrix of tf-idf
         key = []
         for i in range(len(weight)):
-            doc = {}
             t = np.argsort(-weight[i])
             s = ''
             for j in range(40):
-                # print(word[t[j]], ':', weight[i][t[j]])
+
                 if word[t[j]] not in st:
                     s = s + ' ' + word[t[j]]
             key.append(s)
@@ -165,22 +106,62 @@ class Person:
                 if word != '':
                     for j in desc:
                         a = j.count(word)
-                        # print('a;:::::::::::' + str(a)+ word )
                         c += a
-                print('c::::::::::;' + str(c) + word)
+
             count.append(c)
         recommended = set()
-        for i in np.argsort(count)[-4:]:
-
-            recommended.add(data.course_df['course_id'][i] + ": " + data.course_df['names'][i] + ',course rate:' +
-                            '%.2f' % data.course_df['Overall course rate'][i])
-        print("COURSES RECOMMENDED:")
-        for i in recommended:
-            print(i)
+        skillsinput = input(
+            "Do you have specific skills you want to learn?\nlist skills separated by ',',\nanswer 'N' if you don't.")
+        if skillsinput != 'N':
+            for i in range(len(key)):
+                for word in skillsinput.split(','):
+                    if word.lower() in key[i].lower():
+                        recommended.add(
+                            str(data.course_df['course_id'][i]) + ": " + "%-50s" % data.course_df['names'][i] +
+                            'Course rate:' + '%.2f' % data.course_df['Overall course rate'][i])
+            if len(recommended) != 0:
+                print("COURSES RECOMMENDED:")
+                for i in list(recommended)[0: 5 if len(recommended) > 5 else len(recommended)]:
+                    print(i)
+        else:
+            for i in np.argsort(count)[-4:]:
+                recommended.add(
+                    str(data.course_df['course_id'][i]) + ": " + "%-50s" % data.course_df['names'][i] +
+                    'course rate:' + '%.2f' % data.course_df['Overall course rate'][i])
+            print("COURSES RECOMMENDED:")
+            for i in recommended:
+                print(i)
         pass
 
-    def recommend_job(self, jobs_df):
-        pass
+    def recommend_job(self, data):
+        if self.career == 'data scientist':
+            job = data.ds_df
+        elif self.career == 'software engineer':
+            job = data.sde_df
+        elif self.career == 'consultant':
+            job = data.consulting_df
+
+        print("*******************" + "recommend jobs of " + career + "*******************\n")
+
+        if self.location is not None:
+            job['location'] = job['location'].str.lower()
+            recommend_job = job[job['location'].str.contains(self.location).fillna(False).values]
+        else:
+            recommend_job = job
+
+        recommend_job = recommend_job.sort_values(by="company_review", ascending=False)
+        recommend_job["avg_salary"] = (recommend_job["salary_low"] + recommend_job["salary_low"]) / 2
+        recommend_job = recommend_job.reset_index(drop=True)
+
+        if len(recommend_job) == 0:
+            print("not job found on your preferred location")
+        else:
+            for i in range(10 if len(recommend_job) > 10 else len(recommend_job)):
+                print(str(i) + ". " + "%-20s" % recommend_job.loc[i, "name"] +
+                      " Company: " + "%-10s" % recommend_job.loc[i, "company"] +
+                      "(%.2f" % recommend_job.loc[i, "company_review"] + ")" +
+                      " Est salary: %.2f" % recommend_job.loc[i, "avg_salary"] +
+                      " Location: " + recommend_job.loc[i, "location"])
 
 
 class Data:
@@ -205,7 +186,7 @@ class Data:
         course_evl_combine_df = pd.DataFrame(
             course_evl_df.groupby('Course ID')['Overall course rate'].mean()).reset_index()
 
-        self.course_df = course_evl_combine_df.merge(course_info_df, how="outer", left_on="Course ID",
+        self.course_df = course_evl_combine_df.merge(course_info_df, how="inner", left_on="Course ID",
                                                      right_on="course_id")
         self.company_loc_df = pd.read_csv(company_loc_file)
         self.rent_df = pd.read_csv(rent_file)
@@ -237,38 +218,48 @@ class Data:
         else:  # career == 'consultant'
             df = self.consulting_df
 
+        print("Drawing salary histogram for " + career + "(predicted by glassdoor)")
+
         df = df.loc[:, ["name", 'salary_low', 'salary_high']]
         df['avg_salary'] = df.mean(axis=1)
         boot_df = df['avg_salary'].sample(frac=10, replace=True)  # bootstrap to increase sample
         boot_df = boot_df[np.abs(boot_df - boot_df.mean()) <= (3 * boot_df.std())]  # remove outlier (>3sigma)
         fig, ax = plt.subplots()
-        boot_df.plot.kde(ax=ax, legend=False, title='Salary for Data Scientist')
+        boot_df.plot.kde(ax=ax, legend=False, title='Salary for ' + career)
         boot_df.plot.hist(density=True, ax=ax)
         ax.grid(axis='y')
         ax.set_facecolor('#d8dcd6')
-        plt.show()
+
+        img_path = career + "hist_salary.png"
+        plt.savefig(img_path)
+        print("salary histogram for " + career + " saved in " + os.getcwd().split()[0] + img_path)
 
     def hist_review(self, career):
         if career == "data scientist":
             df = self.ds_df
-        elif career == 'software engineer developer':
+        elif career == 'software engineer':
             df = self.sde_df
         else:  # career == 'consultant':
             df = self.consulting_df
 
+        print("Drawing company review histogram for " + career)
+
         fig, ax = plt.subplots()
-        df['company_review'].plot.kde(ax=ax, legend=False, title='Company Review Score for Data Scientist')
+        df['company_review'].plot.kde(ax=ax, legend=False, title='Company Review Score for ' + career)
         df['company_review'].plot.hist(density=True, ax=ax, color='skyblue')
         ax.grid(axis='y')
         ax.set_facecolor('#d8dcd6')
-        plt.show()
+
+        img_path = career + "hist_review.png"
+        plt.savefig(img_path)
+        print("company review histogram for " + career + " saved in " + os.getcwd().split()[0] + img_path)
 
     def job_wc(self, career):
         if career == "data scientist":
             df = self.ds_df
             new_words = ['experience', 'entry', 'level', 'position', 'work', 'Job', 'will', 'required', 'requirement',
                          'team', 'project', 'provide', 'knowledge']
-        elif career == 'software engineer developer':
+        elif career == 'software engineer':
             df = self.sde_df
             new_words = ['experience', 'entry', 'level', 'position', 'work', 'Job', 'will', 'required', 'requirement',
                          'team', 'project', 'provide', 'knowledge', 'Jobs']
@@ -277,6 +268,7 @@ class Data:
             new_words = ['experience', 'entry', 'level', 'position', 'work', 'Job', 'will', 'required', 'requirement',
                          'team', 'project', 'provide', 'knowledge', 'Jobs']
 
+        print("Drawing word cloud for " + career)
         your_list = []
         for i in df['description']:
             your_list.append(i + ' ')
@@ -294,13 +286,19 @@ class Data:
         plt.imshow(wc, interpolation="bilinear")
         plt.axis("off")
 
+        img_path = career + "_word_cloud.png"
+        plt.savefig(img_path)
+        print("Word cloud for " + career + " saved in " + os.getcwd().split()[0] + img_path)
+
     def job_map(self, career):
         if career == 'data scientist':
             df = self.ds_df
-        elif career == 'software engineer developer':
+        elif career == 'software engineer':
             df = self.sde_df
         else:  # career == 'consultant':
             df = self.consulting_df
+
+        print("Drawing heat map for job numbers of " + career)
 
         # count job num
         df = df.dropna().groupby(['state'], as_index=False)['state'].agg({'cnt': 'count'})
@@ -320,9 +318,13 @@ class Data:
         layout = dict(title='Consultant Job Distribution around US',
                       geo=dict(scope='usa', showlakes=True))
         choromap = go.Figure(data=[map_data], layout=layout)
-        plotly.offline.plot(choromap, filename='image/job_map.html')
+
+        img_path = career + '_job_map.html'
+        plotly.offline.plot(choromap, filename=img_path)
+        print("Job numbers heat map of " + career + " saved in: " + os.getcwd().split()[0] + img_path)
 
     def rent_map(self):
+        print("Drawing rent price heat map")
         map_data = dict(type='choropleth',
                         colorscale='Viridis',
                         reversescale=True,
@@ -337,29 +339,111 @@ class Data:
                                showlakes=True))
 
         choromap = go.Figure(data=[map_data], layout=layout)
-        plotly.offline.plot(choromap, filename='image/rent_map.html')
+        img_path = 'rent_map.html'
+        plotly.offline.plot(choromap, filename=img_path)
+        print("Rent price heat map saved in " + os.getcwd().split()[0] + img_path)
+
+
+# to give career base on number input
+def career_num():
+    num = input("\n\nPlease enter the job type number:\n"
+                "1. consultant\n"
+                "2. software engineer\n"
+                "3. data scientist")
+
+    if num == "1":
+        return "consultant"
+    elif num == "2":
+        return "software engineer"
+    elif num == "3":
+        return "data scientist"
+    else:
+        print("Cannot find your job number.")
+        return None
 
 
 if __name__ == "__main__":
-    # TODO some fancy welcome message
-
+    print("initializing program...")
     # instantiate Data
     # check if exist
     files_list = [CONSULTING_FILE, SDE_FILE, DS_FILE, COURSE_EVL_FILE, COURSE_INFO_FILE, COMPANY_LOC_FILE, RENT_FILE]
     for file in files_list:
         if not Path(file).is_file():
+            print(file + " not found")
             Data.update(file)
+        else:
+            print(file + " founded")
 
     database = Data(*files_list)
 
-    # instantiate Person
-    # person = Person(input("Please enter your career:").lower(), input("Please enter your location:").lower())
-    person = Person("consultant", "New York")
+    print("\n\n******************Welcome to pointer!*************************")
+    run = input("please enter the number to choose functions\n"
+                "1 Insights for finding your career\n"
+                "2 Recommendation job and course for you\n"
+                "3 Update the data\n"
+                "4 Exit")
 
-    # recommend
-    # person.recommend_job()
-    # person.recommend_course()
-    # database.hist_salary(person.career)
-    # database.hist_review(person.career)
-    # database.job_wc(person.career)
-    # database.heat_map(person.career)
+    while run != "4":
+        if run == "1":  # generate graph
+            graph_num = input("\n\nPlease enter the graph you want to save:\n"
+                              "1. salary histogram\n"
+                              "2. company review histogram\n"
+                              "3. word cloud of job description\n"
+                              "4. job number heat map\n"
+                              "5. rent price heat map\n"
+                              )
+            try:
+                graph_num = int(graph_num)
+                if graph_num <= 4:
+                    print("You can choose your preferred job type")
+                    career = career_num()
+                    if career is None:
+                        continue
+                    if graph_num == 1:
+                        database.hist_salary(career)
+                    elif graph_num == 2:
+                        database.hist_review(career)
+                    elif graph_num == 3:
+                        database.job_wc(career)
+                    elif graph_num == 4:
+                        database.job_map(career)
+                elif graph_num == 5:
+                    database.rent_map()
+                else:
+                    print("Cannot find your required graph")
+            except ValueError:
+                print("Cannot find your required graph")
+
+        elif run == "2":  # recommend course
+            career = career_num()
+            if career is None:
+                continue
+            person = Person(career)
+
+            sub_run = input("Please enter the recommendation type:\n"
+                            "a. Course\n"
+                            "b. Job\n")
+            if sub_run == "a":
+                person.recommend_course(database)
+            elif sub_run == "b":
+                person.location = input("Please enter your preferred working location:").lower()
+                person.recommend_job(database)
+            else:
+                print("Cannot find your required function")
+        elif run == "3":  # update data
+            print("file list:")
+            for idx, file in iter(files_list):
+                print(str(idx) + ". " + file)
+            Data.update(input("please input the file number you want to update"))
+        else:  # other input number
+            print("Cannot find your input function number")
+
+        run = input("\n\n*******************Main menu************************\n"
+                    "please enter the number to choose functions\n"
+                    "1 Insights for finding your career\n"
+                    "2 Recommendation job and course for you\n"
+                    "3 Update the data\n"
+                    "4 Exit")
+
+    print("Good luck on finding your job, bye!")
+
