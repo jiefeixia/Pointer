@@ -3,6 +3,12 @@ from time import sleep
 import os
 import pandas as pd
 
+"""
+This module is used to download the data from https://www.zillow.com/home-values/.
+It will first download the data as .xls format united-states.xls, then read it, clean it and store as csv file.
+"""
+
+
 us_state_abbrev = {
     'Alabama': 'AL',
     'Alaska': 'AK',
@@ -58,6 +64,7 @@ us_state_abbrev = {
 
 
 def download(file):
+    # first download the united-states.xls
     download_path = os.path.join(os.getcwd(), "data")
     options = webdriver.ChromeOptions()
     prefs = {'profile.default_content_settings.popups': 0, 'download.default_directory': download_path}
@@ -75,7 +82,7 @@ def download(file):
     finally:
         driver.close()
 
-    # clean data
+    # then read the downloaded Excel data and clean it, finally save it as a csv file.
     df = pd.read_excel("data//united-states.xls", skiprows=2)
     df = df.iloc[1:, :]
 

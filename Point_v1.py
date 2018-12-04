@@ -17,7 +17,17 @@ from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_extraction.text import CountVectorizer
 
 """
-this is the main function
+This is the main module to run.
+There are two classes in this module: People and Data.
+
+People class is used to create the user's profile and recommend courses and jobs based on his/her profile.
+Its recommend_course method need to read corenlp_stopwords.txt as its stops words for NLP. 
+It uses tf-idf algorithm to match the course with your desired job description.
+
+Data class is used to create the database instance for this program. Each table is an instance variable 
+and is stored as a Pandas DataFrame format. The program will first look at the data folder to check 
+whether all files exist. If not, it will call the Data.update() method to crawl/download the data.
+There are also other methods used to generate different graphs. 
 """
 
 CONSULTING_FILE = "data/consultant.csv"

@@ -2,6 +2,14 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import pandas as pd
 
+"""
+This module is used to crawl the course information from heinz course API(https://api.heinz.cmu.edu/courses_api).
+
+The course information includes course id, course name, course units, course description and learning outcome. 
+
+After finished, it will store the file into file(which is its argument)
+"""
+
 
 def crawl(file):
     names = []
@@ -41,7 +49,7 @@ def crawl(file):
                 if driver.find_elements_by_css_selector(
                         "#container-fluid > div > div.col-md-10 > p")[2].find_elements_by_css_selector("span")[0].text \
                         == "Learning Outcomes:":
-                    
+
                     learning_outcome.append(driver.find_elements_by_css_selector(
                         "#container-fluid > div > div.col-md-10 > p")[2].text)
                 else:
@@ -49,7 +57,6 @@ def crawl(file):
             except IndexError:
                 learning_outcome.append(None)
             print("finish", url, len(names), ",", len(learning_outcome))
-
 
     df = pd.DataFrame({"names": names, "course_id": course_id, "units": units, "description": descriptions,
                        "learning_outcome": learning_outcome})

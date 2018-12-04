@@ -4,6 +4,16 @@ from selenium.webdriver.chrome.options import Options
 import pandas as pd
 
 
+"""
+This module is used to crawl course evaluation scores from https://www.smartevls.com.
+The website need you to use your Andrew ID and password to login in.  
+
+The course evaluation information we used includes course id, course name, average course overall score.
+
+After finished, it will store the file into file(which is its argument).
+"""
+
+
 def crawl(file, andrew_id, password):
     options = Options()
     options.headless = True

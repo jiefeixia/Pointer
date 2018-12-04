@@ -8,7 +8,22 @@ import os
 from functools import partial
 import re
 
-MAX_PAGE = 3  # max crawling page
+
+"""
+This module is used to crawl the job information from https://www.glassdoor.com. 
+The job information includes job name, working location, company name, company review rating, 
+salary estimated by glassdoor, job description. 
+We will extract the qualification from job description for future text mining usage.
+
+Its crawl() method is called by the main module.
+Because the loading speed is slow, we use a multi-threading strategy in this method. It will create several
+(your CPU core numbers -1) processes to call crawl_page() function. 
+
+After finished, it will store the file into file(which is its argument).
+"""
+
+
+MAX_PAGE = 3  # default max crawling page
 us_state_abbrev = {
     'Alabama': 'AL',
     'Alaska': 'AK',
