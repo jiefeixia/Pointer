@@ -36,7 +36,7 @@ Then it will come to the main menu. You can choose the following functions:
         
 ## Highlight Function
 * The multi-threading strategy is used to speed up when crawling from a dynamic website.
-* Most crawl module uses [selenium](https://www.seleniumhq.org/) and chrome driver in case the website is built on AJAX.
+* Most crawl module uses [selenium](https://www.seleniumhq.org/) and  [chrome driver](http://chromedriver.chromium.org/)  in case the website is built on AJAX.
 * The recommendation function is based on [tf-idf](https://en.wikipedia.org/wiki/Tf%E2%80%93idf) algorithm to increase its precision.
 * The program can update its database by its inside method, so after the course finishing, you can still use this program.
 * Some of its job insight graphs is interactive.  
