@@ -1,7 +1,7 @@
 # :point_right: Pointer
 This program is the Course project for Data Focus Python. It can pave the way to your successful career!
 
-## Instruction
+## Instruction([video](https://youtu.be/m8LF65Qc5Cw))
 First, the program will check whether all necessary data file exists. If not, it will automatically download the missing data.  
 Then it will come to the main menu. You can choose the following functions:  
 1. Summary statistics for three tracks:
