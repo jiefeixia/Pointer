@@ -1,5 +1,5 @@
 # :point_right: Pointer
-This is the Course project for Data Focus Python. You can use this program to find your desired job!
+This is the Course project for Data Focus Python. It can pave the way to your successful career!
 
 ## Instruction
 First the program will check whether all necessary data file exits. 
@@ -39,7 +39,9 @@ If yes, it will come to the main menu. You can choose the following functions:
 * The multi-threading strategy is used to speed up when crawling from dynamic website.
 * Most crawl module uses [selenium](https://www.seleniumhq.org/) and chrome driver in case the website is build on AJAX.
 * The recommendation function is based on [tf-idf](https://en.wikipedia.org/wiki/Tf%E2%80%93idf) algorithm to increase its precision.
-        
+* The program can update its database by its inside method, so after the course finishing you can still use this program.
+* Some of its job insights graph is interactive.  
+
 ## Installation
 * Download the whole folder and decompression
 * Required environment: python 3.5+
