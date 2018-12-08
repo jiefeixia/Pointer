@@ -57,6 +57,8 @@ Available platform plugins are: direct2d, minimal, offscreen, windows.
 Reinstalling the application may fix this problem.
 ```
 
+## Run
+
 * run Point_v1.py
 
  
