@@ -58,7 +58,8 @@ Reinstalling the application may fix this problem.
 ```
 
 ## Run
-
-* run Point_v1.py
+* Please use the terminal(cmd) to execute this program
+* cd to the downloaded folder's path
+* type in python pointer_v1.py
 
  
