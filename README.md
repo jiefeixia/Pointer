@@ -29,7 +29,7 @@ Then it will come to the main menu. You can choose the following functions:
         * course_evl.csv
     * Crawl course information data from [heinz course API](https://api.heinz.cmu.edu/courses_api)
         * course_info.csv
-    * Download rent price data from [pillow](https://www.zillow.com/home-values/) and convert it into .csv file
+    * Download rent price data from [Zillow](https://www.zillow.com/home-values/) and convert it into .csv file
         * rent_price.csv
     * Get data from [arcgis API](https://www.arcgis.com/index.html)
         * company_loc.csv
@@ -44,7 +44,7 @@ Then it will come to the main menu. You can choose the following functions:
 ## Installation
 * Download the whole folder and decompression
 * Required environment: python 3.5+
-* Required packages: `requirement.txt`. You can install by `pip install -r requirement.txt`  
+* Required packages: `requirements.txt`. You can install by `pip install -r requirements.txt`  
   You need to download the [chrome driver](http://chromedriver.chromium.org/downloads) and add its path to your environment variable for selenium.
 * If you are using Anaconda, don't forget to activate your environment by `activate env_name`(you can find your environment name by `conda env list`). Or you might see the error  
 ```
